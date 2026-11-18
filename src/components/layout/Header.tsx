@@ -21,6 +21,7 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const getDashboardLink = () => {
+    if (!user) return '/auth/login';
     if (user.role === 'superadmin') return '/admin/dashboard';
     if (user.role === 'mechanic') return '/mekanik/dashboard';
     return '/pelanggan/dashboard';
@@ -63,7 +64,7 @@ export function Header() {
             href={getDashboardLink()}
             className="text-sm font-medium text-[#242522] hover:text-[#D96B3A] px-3 py-1.5 transition-colors"
           >
-            Portal {user.role === 'customer' ? 'Pelanggan' : user.role === 'mechanic' ? 'Mekanik' : 'Superadmin'}
+            {user ? `Portal ${user.role === 'customer' ? 'Pelanggan' : user.role === 'mechanic' ? 'Mekanik' : 'Superadmin'}` : 'Masuk Akun'}
           </Link>
 
           <Link
@@ -112,7 +113,7 @@ export function Header() {
               onClick={() => setMobileOpen(false)}
               className="text-sm font-medium text-[#242522] py-2"
             >
-              Portal {user.role}
+              {user ? `Portal ${user.role}` : 'Masuk Akun'}
             </Link>
             <Link
               href="/pelanggan/booking"

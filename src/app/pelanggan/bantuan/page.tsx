@@ -57,7 +57,7 @@ export default function CustomerSupportPage() {
               Forum Dukungan & Konsultasi Mekanik
             </h1>
             <p className="text-xs text-[#777871] mt-0.5">
-              Tanyakan langsung kendala teknis mobil Anda ke tim mekanik kepala TORSI.
+              Tanyakan langsung kendala teknis mobil Anda ke tim mekanik kepala MELTUNE AUTO.
             </p>
           </div>
           <button

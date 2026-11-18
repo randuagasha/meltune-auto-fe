@@ -51,10 +51,10 @@ export default function CustomerDashboardPage() {
         <div className="bg-[#FFFFFF] p-6 sm:p-8 rounded border border-[#E4E1D9] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div>
             <span className="text-xs font-semibold uppercase tracking-wider text-[#D96B3A]">
-              Customer Portal TORSI
+              Customer Portal MELTUNE AUTO
             </span>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-[#242522] font-heading mt-1">
-              Selamat Datang, {user.fullName}
+              Selamat Datang, {user?.fullName || 'Pelanggan'}
             </h1>
             <p className="text-xs text-[#777871] mt-1">
               Ringkasan kondisi kendaraan, reservasi workbay, dan poin loyalty harian Anda.

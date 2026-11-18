@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import { Logo } from '@/components/ui/Logo';
 import { useAuth } from '@/components/auth/AuthProvider';
 import {
@@ -35,7 +36,33 @@ const ADMIN_MENU = [
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const router = useRouter();
+  const { user, logout, isReady } = useAuth();
+
+  useEffect(() => {
+    if (!isReady) return;
+    if (!user) {
+      router.push('/auth/login?redirect=' + encodeURIComponent(pathname));
+      return;
+    }
+    if (user.role !== 'superadmin') {
+      if (user.role === 'mechanic') {
+        router.push('/mekanik/dashboard');
+      } else {
+        router.push('/pelanggan/dashboard');
+      }
+    }
+  }, [isReady, user, router, pathname]);
+
+  if (!isReady) {
+    return (
+      <div className="min-h-screen bg-[#F5F4F0] flex items-center justify-center text-xs text-[#777871]">
+        Memverifikasi otorisasi direksi...
+      </div>
+    );
+  }
+
+  if (!user || user.role !== 'superadmin') return null;
 
   return (
     <div className="min-h-screen bg-[#F5F4F0] flex flex-col md:flex-row">

@@ -246,7 +246,7 @@ export const INITIAL_PRODUCTS: ProductItem[] = [
   },
   {
     id: 'prd_tire_gauge_digital',
-    name: 'TORSI Digital Precision Tire Pressure Gauge (150 PSI)',
+    name: 'MELTUNE Digital Precision Tire Pressure Gauge (150 PSI)',
     category: 'accessories',
     description: 'Sensor barometrik backlit digital dengan akurasi deviasi < 0.5 PSI. Pegangan ergonomis berfinishing anodized dark grey.',
     price: 220000,
@@ -275,7 +275,7 @@ export const INITIAL_REWARDS: RewardItem[] = [
   },
   {
     id: 'rew_tire_gel',
-    title: 'TORSI Satin Black Tire Dressing Gel (300ml)',
+    title: 'MELTUNE Satin Black Tire Dressing Gel (300ml)',
     description: 'Kilap alami satin deep black tahan air, tidak mengotori fender mobil saat kecepatan tinggi.',
     pointsCost: 180,
     stock: 14,
@@ -324,7 +324,7 @@ export const INITIAL_THREADS: SupportThread[] = [
         senderId: 'usr_mock_user',
         senderName: 'Budi Santoso',
         senderRole: 'customer',
-        content: 'Halo tim TORSI, setiap pagi saat pertama kali jalan dan menginjak rem pelan di turunan komplek, terdengar bunyi decit tipis. Apakah ini indikasi kampas rem menipis atau kotoran embun saja ya?',
+        content: 'Halo tim MELTUNE, setiap pagi saat pertama kali jalan dan menginjak rem pelan di turunan komplek, terdengar bunyi decit tipis. Apakah ini indikasi kampas rem menipis atau kotoran embun saja ya?',
         createdAt: '2026-11-12T09:30:00Z',
       },
       {

@@ -66,7 +66,7 @@ export function Footer() {
               </div>
               <div className="flex items-center gap-2.5">
                 <Mail size={16} className="text-[#D96B3A] shrink-0" />
-                <span>layanan@torsi.id</span>
+                <span>layanan@meltune.id</span>
               </div>
             </div>
           </div>
@@ -74,7 +74,7 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-500">
-          <p>© 2026 TORSI (Automotive Service & Parts). Seluruh hak cipta dilindungi.</p>
+          <p>© 2026 MELTUNE AUTO (Automotive Service & Parts). Seluruh hak cipta dilindungi.</p>
           <div className="flex items-center gap-6">
             <Link href="/tentang" className="hover:text-neutral-300">Tentang Workshop</Link>
             <Link href="/kontak" className="hover:text-neutral-300">Kontak WhatsApp</Link>

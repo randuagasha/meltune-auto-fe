@@ -16,7 +16,7 @@ export function Logo({ className = '', variant = 'dark' }: LogoProps) {
             : 'bg-[#D96B3A] text-[#F5F4F0] group-hover:bg-[#BF582D]'
         }`}
       >
-        T
+        M
       </span>
       <span className="flex flex-col">
         <span
@@ -24,7 +24,7 @@ export function Logo({ className = '', variant = 'dark' }: LogoProps) {
             isDark ? 'text-[#242522]' : 'text-white'
           }`}
         >
-          TORSI
+          MELTUNE
         </span>
         <span
           className={`text-[9px] uppercase tracking-widest font-medium ${

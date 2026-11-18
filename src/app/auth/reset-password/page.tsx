@@ -24,7 +24,7 @@ export default function ResetPasswordPage() {
           Atur Ulang Kata Sandi
         </h2>
         <p className="mt-1 text-xs text-[#777871] max-w-xs mx-auto">
-          Silakan buat kata sandi baru untuk mengamankan kembali akun TORSI Anda.
+          Silakan buat kata sandi baru untuk mengamankan kembali akun MELTUNE AUTO Anda.
         </p>
       </div>
 

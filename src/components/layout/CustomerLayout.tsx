@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import { Logo } from '@/components/ui/Logo';
 import { useAuth } from '@/components/auth/AuthProvider';
 import {
@@ -30,7 +31,25 @@ const MENU_ITEMS = [
 
 export function CustomerLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const router = useRouter();
+  const { user, logout, isReady } = useAuth();
+
+  useEffect(() => {
+    if (!isReady) return;
+    if (!user) {
+      router.push('/auth/login?redirect=' + encodeURIComponent(pathname));
+    }
+  }, [isReady, user, router, pathname]);
+
+  if (!isReady) {
+    return (
+      <div className="min-h-screen bg-[#F5F4F0] flex items-center justify-center text-xs text-[#777871]">
+        Memuat sesi pelanggan...
+      </div>
+    );
+  }
+
+  if (!user) return null;
 
   return (
     <div className="min-h-screen bg-[#F5F4F0] flex flex-col md:flex-row">
@@ -41,10 +60,10 @@ export function CustomerLayout({ children }: { children: React.ReactNode }) {
             <Logo />
             <div className="mt-4 p-3 bg-[#ECEAE4]/60 rounded border border-[#E4E1D9]/80 flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-[#242522] text-[#F5F4F0] flex items-center justify-center font-bold text-xs">
-                {user.fullName.slice(0, 1)}
+                {user.fullName ? user.fullName.slice(0, 1) : 'U'}
               </div>
               <div className="overflow-hidden">
-                <div className="text-xs font-bold text-[#242522] truncate">{user.fullName}</div>
+                <div className="text-xs font-bold text-[#242522] truncate">{user.fullName || 'Pelanggan'}</div>
                 <div className="text-[10px] text-[#777871] uppercase tracking-wider">Customer Portal</div>
               </div>
             </div>

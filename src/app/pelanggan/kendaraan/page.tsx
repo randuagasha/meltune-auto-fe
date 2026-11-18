@@ -86,7 +86,7 @@ export default function CustomerVehiclesPage() {
               Kendaraan Terdaftar
             </h1>
             <p className="text-xs text-[#777871] mt-0.5">
-              Daftarkan seluruh mobil Anda untuk mempermudah riwayat dan penjadwalan servis di workshop TORSI.
+              Daftarkan seluruh mobil Anda untuk mempermudah riwayat dan penjadwalan servis di workshop MELTUNE AUTO.
             </p>
           </div>
           <button

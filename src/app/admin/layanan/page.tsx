@@ -83,7 +83,7 @@ export default function AdminServicesPage() {
               Katalog Layanan & Tarif Servis
             </h1>
             <p className="text-xs text-[#777871] mt-0.5">
-              Atur daftar paket pengerjaan, estimasi durasi, deskripsi prosedur, dan harga resmi workshop TORSI.
+              Atur daftar paket pengerjaan, estimasi durasi, deskripsi prosedur, dan harga resmi workshop MELTUNE AUTO.
             </p>
           </div>
           <button

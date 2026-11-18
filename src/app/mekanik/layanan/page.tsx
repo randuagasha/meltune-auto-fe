@@ -21,7 +21,7 @@ export default function MechanicServicesViewPage() {
             Daftar Servis Workshop & Prosedur Operasional
           </h1>
           <p className="text-xs text-[#777871] mt-0.5">
-            Daftar paket pengerjaan resmi TORSI. Pengaturan harga dan penambahan layanan berada di bawah wewenang superadmin.
+            Daftar paket pengerjaan resmi MELTUNE AUTO. Pengaturan harga dan penambahan layanan berada di bawah wewenang superadmin.
           </p>
         </div>
 

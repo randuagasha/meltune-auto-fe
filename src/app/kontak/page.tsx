@@ -93,7 +93,7 @@ export default function ContactPage() {
                     <div>
                       <div className="font-semibold text-[#242522]">Email Korespondensi</div>
                       <p className="text-xs text-[#777871] mt-0.5">
-                        layanan@torsi.id
+                        layanan@meltune.id
                       </p>
                     </div>
                   </div>
@@ -101,7 +101,7 @@ export default function ContactPage() {
 
                 <div className="pt-4 border-t border-[#E4E1D9]">
                   <a
-                    href="https://wa.me/628119876543?text=Halo%20TORSI,%20saya%20ingin%20konsultasi%20kendaraan"
+                    href="https://wa.me/628119876543?text=Halo%20MELTUNE%20AUTO,%20saya%20ingin%20konsultasi%20kendaraan"
                     target="_blank"
                     rel="noreferrer"
                     className="w-full bg-[#242522] hover:bg-[#383a35] text-white text-xs font-semibold py-3 rounded flex items-center justify-center gap-2 transition-colors"
@@ -117,7 +117,7 @@ export default function ContactPage() {
                 <div className="aspect-16/9 bg-[#ECEAE4] rounded flex flex-col items-center justify-center text-center p-6 space-y-2">
                   <MapPin size={28} className="text-[#D96B3A]" />
                   <span className="text-xs font-bold text-[#242522] font-heading">
-                    Lokasi Workshop TORSI BSD
+                    Lokasi Workshop MELTUNE AUTO BSD
                   </span>
                   <span className="text-[11px] text-[#777871] max-w-xs">
                     5 Menit dari Exit Tol BSD Timur. Patokan: Samping Sentra Otomotif Modern BSD Blok B3.
@@ -140,7 +140,7 @@ export default function ContactPage() {
                       Pesan Anda Berhasil Diterima
                     </h4>
                     <p className="text-xs text-[#777871] max-w-sm mx-auto">
-                      Mekanik atau customer support TORSI akan menghubungi nomor WhatsApp Anda dalam kurun waktu operasional maksimal 30 menit.
+                      Mekanik atau customer support MELTUNE AUTO akan menghubungi nomor WhatsApp Anda dalam kurun waktu operasional maksimal 30 menit.
                     </p>
                     <button
                       onClick={() => setSubmitted(false)}

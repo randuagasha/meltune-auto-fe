@@ -56,7 +56,7 @@ export default function CustomerBookingHistoryPage() {
               Belum Ada Reservasi Aktif
             </h3>
             <p className="text-xs text-[#777871] max-w-sm mx-auto">
-              Anda belum melakukan booking jadwal servis di workshop TORSI.
+              Anda belum melakukan booking jadwal servis di workshop MELTUNE AUTO.
             </p>
           </div>
         ) : (

@@ -6,12 +6,38 @@ import { api } from '@/services';
 import { Order } from '@/types';
 import { ShoppingBag, CheckCircle2, Clock } from 'lucide-react';
 
+const ORDER_STATUSES: Order['status'][] = [
+  'pending',
+  'processing',
+  'ready_for_pickup',
+  'shipped',
+  'completed',
+  'cancelled',
+];
+
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const loadOrders = () => {
+    setLoading(true);
+    api.orders.getAll()
+      .then(setOrders)
+      .finally(() => setLoading(false));
+  };
 
   useEffect(() => {
-    api.orders.getAll().then(setOrders);
+    loadOrders();
   }, []);
+
+  const handleStatusChange = async (id: string, newStatus: Order['status']) => {
+    try {
+      await api.orders.updateStatus(id, newStatus);
+      loadOrders();
+    } catch (err: any) {
+      alert(err.message || 'Gagal memperbarui status pesanan');
+    }
+  };
 
   return (
     <AdminLayout>
@@ -34,35 +60,70 @@ export default function AdminOrdersPage() {
                 <th className="p-3">Item Suku Cadang</th>
                 <th className="p-3">Metode Pengiriman</th>
                 <th className="p-3">Total Nilai</th>
-                <th className="p-3">Status</th>
+                <th className="p-3">Status Saat Ini</th>
+                <th className="p-3 text-right">Ubah Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E4E1D9]">
-              {orders.map(o => (
-                <tr key={o.id} className="hover:bg-[#F5F4F0]">
-                  <td className="p-3 font-mono font-bold text-[#242522]">{o.orderNumber}</td>
-                  <td className="p-3">
-                    <div className="font-bold text-[#242522]">{o.userName}</div>
-                    <div className="text-[11px] text-[#777871]">{o.userPhone}</div>
-                  </td>
-                  <td className="p-3">
-                    <div className="text-[#242522]">
-                      {o.items.map(i => `${i.productName} (${i.quantity}x)`).join(', ')}
-                    </div>
-                  </td>
-                  <td className="p-3 capitalize text-[#777871]">
-                    {o.shippingMethod.replace('_', ' ')}
-                  </td>
-                  <td className="p-3 font-bold font-heading text-[#242522]">
-                    Rp {o.totalAmount.toLocaleString('id-ID')}
-                  </td>
-                  <td className="p-3">
-                    <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded capitalize">
-                      {o.status}
-                    </span>
+              {loading && orders.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="p-8 text-center text-xs text-[#777871]">
+                    Memuat pesanan...
                   </td>
                 </tr>
-              ))}
+              ) : orders.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="p-8 text-center text-xs text-[#777871]">
+                    Belum ada pesanan suku cadang.
+                  </td>
+                </tr>
+              ) : (
+                orders.map(o => (
+                  <tr key={o.id} className="hover:bg-[#F5F4F0]">
+                    <td className="p-3 font-mono font-bold text-[#242522]">{o.orderNumber}</td>
+                    <td className="p-3">
+                      <div className="font-bold text-[#242522]">{o.userName}</div>
+                      <div className="text-[11px] text-[#777871]">{o.userPhone}</div>
+                    </td>
+                    <td className="p-3">
+                      <div className="text-[#242522]">
+                        {o.items.map(i => `${i.productName} (${i.quantity}x)`).join(', ')}
+                      </div>
+                    </td>
+                    <td className="p-3 capitalize text-[#777871]">
+                      {o.shippingMethod.replace('_', ' ')}
+                    </td>
+                    <td className="p-3 font-bold font-heading text-[#242522]">
+                      Rp {o.totalAmount.toLocaleString('id-ID')}
+                    </td>
+                    <td className="p-3">
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded capitalize ${
+                        o.status === 'completed' ? 'bg-emerald-100 text-emerald-800' :
+                        o.status === 'processing' ? 'bg-blue-100 text-blue-800' :
+                        o.status === 'ready_for_pickup' ? 'bg-amber-100 text-amber-800' :
+                        o.status === 'shipped' ? 'bg-purple-100 text-purple-800' :
+                        o.status === 'cancelled' ? 'bg-rose-100 text-rose-800' :
+                        'bg-neutral-100 text-[#777871]'
+                      }`}>
+                        {o.status.replace('_', ' ')}
+                      </span>
+                    </td>
+                    <td className="p-3 text-right">
+                      <select
+                        value={o.status}
+                        onChange={e => handleStatusChange(o.id, e.target.value as Order['status'])}
+                        className="px-2 py-1 bg-[#F5F4F0] border border-[#E4E1D9] rounded text-[11px] font-medium text-[#242522] focus:outline-none focus:border-[#D96B3A]"
+                      >
+                        {ORDER_STATUSES.map(st => (
+                          <option key={st} value={st}>
+                            {st.replace(/_/g, ' ')}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

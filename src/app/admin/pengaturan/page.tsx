@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
-import { Settings, Save, CheckCircle2 } from 'lucide-react';
+import { api } from '@/services';
+import { Settings, Save, CheckCircle2, AlertCircle } from 'lucide-react';
 
 export default function AdminSettingsPage() {
   const [settings, setSettings] = useState({
-    workshopName: 'TORSI Automotive Service & Parts',
+    workshopName: 'MELTUNE AUTO Service & Parts',
     address: 'Kawasan Otomotif BSD Blok B3 No. 12, Pagedangan, Tangerang Selatan, Banten 15310',
     phone: '+62 21 5590 8820',
     whatsapp: '+62 811 9876 543',
@@ -15,12 +16,48 @@ export default function AdminSettingsPage() {
     totalBays: 4,
   });
 
+  const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    api.admin.getSettings().then(data => {
+      if (data) {
+        setSettings({
+          workshopName: data.workshopName || 'MELTUNE AUTO Service & Parts',
+          address: data.address || '',
+          phone: data.phone || '',
+          whatsapp: data.whatsapp || '',
+          operatingHours: data.operatingHours || 'Senin - Sabtu: 08:30 - 17:30 WIB (Minggu Libur)',
+          maxCapacityPerSlot: data.maxBookingsPerSlot || 2,
+          totalBays: 4,
+        });
+      }
+    }).catch(err => {
+      setErrorMsg(err.message || 'Gagal memuat pengaturan workshop');
+    });
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    setLoading(true);
+    setErrorMsg(null);
+    try {
+      await api.admin.updateSettings({
+        workshopName: settings.workshopName,
+        address: settings.address,
+        phone: settings.phone,
+        whatsapp: settings.whatsapp,
+        operatingHours: settings.operatingHours,
+        maxBookingsPerSlot: settings.maxCapacityPerSlot,
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Gagal menyimpan pengaturan');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -38,7 +75,14 @@ export default function AdminSettingsPage() {
         {saved && (
           <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs px-4 py-3 rounded flex items-center gap-2">
             <CheckCircle2 size={16} />
-            <span>Pengaturan workshop berhasil diperbarui.</span>
+            <span>Pengaturan workshop berhasil diperbarui dan tersimpan di database.</span>
+          </div>
+        )}
+
+        {errorMsg && (
+          <div className="bg-rose-50 border border-rose-200 text-rose-700 text-xs px-4 py-3 rounded flex items-center gap-2">
+            <AlertCircle size={16} />
+            <span>{errorMsg}</span>
           </div>
         )}
 
@@ -47,6 +91,7 @@ export default function AdminSettingsPage() {
             <label className="block font-semibold text-[#242522] mb-1">Nama Resmi Workshop</label>
             <input
               type="text"
+              required
               value={settings.workshopName}
               onChange={e => setSettings({ ...settings, workshopName: e.target.value })}
               className="w-full px-3 py-2 bg-[#F5F4F0] border border-[#E4E1D9] rounded text-[#242522] focus:outline-none focus:border-[#D96B3A]"
@@ -57,6 +102,7 @@ export default function AdminSettingsPage() {
             <label className="block font-semibold text-[#242522] mb-1">Alamat Fisik Workshop</label>
             <textarea
               rows={2}
+              required
               value={settings.address}
               onChange={e => setSettings({ ...settings, address: e.target.value })}
               className="w-full px-3 py-2 bg-[#F5F4F0] border border-[#E4E1D9] rounded text-[#242522] focus:outline-none focus:border-[#D96B3A]"
@@ -68,6 +114,7 @@ export default function AdminSettingsPage() {
               <label className="block font-semibold text-[#242522] mb-1">Telepon Workshop</label>
               <input
                 type="text"
+                required
                 value={settings.phone}
                 onChange={e => setSettings({ ...settings, phone: e.target.value })}
                 className="w-full px-3 py-2 bg-[#F5F4F0] border border-[#E4E1D9] rounded text-[#242522] focus:outline-none focus:border-[#D96B3A]"
@@ -77,6 +124,7 @@ export default function AdminSettingsPage() {
               <label className="block font-semibold text-[#242522] mb-1">WhatsApp Hotline</label>
               <input
                 type="text"
+                required
                 value={settings.whatsapp}
                 onChange={e => setSettings({ ...settings, whatsapp: e.target.value })}
                 className="w-full px-3 py-2 bg-[#F5F4F0] border border-[#E4E1D9] rounded text-[#242522] focus:outline-none focus:border-[#D96B3A]"
@@ -88,6 +136,7 @@ export default function AdminSettingsPage() {
             <label className="block font-semibold text-[#242522] mb-1">Jam Buka Layanan</label>
             <input
               type="text"
+              required
               value={settings.operatingHours}
               onChange={e => setSettings({ ...settings, operatingHours: e.target.value })}
               className="w-full px-3 py-2 bg-[#F5F4F0] border border-[#E4E1D9] rounded text-[#242522] focus:outline-none focus:border-[#D96B3A]"
@@ -103,6 +152,7 @@ export default function AdminSettingsPage() {
                 type="number"
                 min={1}
                 max={4}
+                required
                 value={settings.maxCapacityPerSlot}
                 onChange={e => setSettings({ ...settings, maxCapacityPerSlot: Number(e.target.value) })}
                 className="w-full px-3 py-2 bg-[#F5F4F0] border border-[#E4E1D9] rounded text-[#242522] focus:outline-none focus:border-[#D96B3A]"
@@ -128,10 +178,11 @@ export default function AdminSettingsPage() {
           <div className="pt-4 border-t border-[#E4E1D9]">
             <button
               type="submit"
-              className="bg-[#D96B3A] hover:bg-[#BF582D] text-white font-semibold px-6 py-2.5 rounded transition-colors inline-flex items-center gap-2"
+              disabled={loading}
+              className="bg-[#D96B3A] hover:bg-[#BF582D] text-white font-semibold px-6 py-2.5 rounded transition-colors inline-flex items-center gap-2 disabled:opacity-50"
             >
               <Save size={14} />
-              <span>Simpan Pengaturan Workshop</span>
+              <span>{loading ? 'Menyimpan...' : 'Simpan Pengaturan Workshop'}</span>
             </button>
           </div>
         </form>

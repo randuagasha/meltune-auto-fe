@@ -20,9 +20,9 @@ export default function AdminSupportAuditPage() {
           <h1 className="text-2xl font-extrabold text-[#242522] font-heading">
             Audit Forum Dukungan & Konsultasi Mekanik
           </h1>
-          <p className="text-xs text-[#777871] mt-0.5">
-            Superadmin mengawasi seluruh interaksi percakapan konsultasi antara pelanggan dan tim teknisi TORSI.
-          </p>
+            <p className="text-xs text-[#777871] mt-0.5">
+              Superadmin mengawasi seluruh interaksi percakapan konsultasi antara pelanggan dan tim teknisi MELTUNE AUTO.
+            </p>
         </div>
 
         <div className="space-y-4">

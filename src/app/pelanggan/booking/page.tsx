@@ -73,13 +73,17 @@ export default function CustomerBookingPage() {
     );
   };
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-    // Mock upload storing local blob URLs
     const newUrls: string[] = [];
     for (let i = 0; i < files.length; i++) {
-      newUrls.push(URL.createObjectURL(files[i]));
+      try {
+        const url = await api.storage.uploadProblemPhoto(files[i]);
+        newUrls.push(url);
+      } catch {
+        newUrls.push(URL.createObjectURL(files[i]));
+      }
     }
     setUploadedPhotos(prev => [...prev, ...newUrls]);
   };
@@ -144,7 +148,7 @@ export default function CustomerBookingPage() {
               Reservasi Jadwal Servis Workshop
             </h1>
             <p className="text-xs text-[#777871] mt-0.5">
-              Alur 8 langkah presisi untuk memastikan persiapan suku cadang dan teknisi di workbay TORSI.
+              Alur 8 langkah presisi untuk memastikan persiapan suku cadang dan teknisi di workbay MELTUNE AUTO.
             </p>
           </div>
           {step < 8 && (

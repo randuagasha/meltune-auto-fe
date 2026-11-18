@@ -58,7 +58,7 @@ export default function AdminProductsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Hapus produk ini dari katalog store TORSI?')) return;
+    if (!confirm('Hapus produk ini dari katalog store MELTUNE AUTO?')) return;
     await api.products.delete(id);
     loadProducts();
   };
@@ -83,7 +83,7 @@ export default function AdminProductsPage() {
               Inventaris Produk & Stok Suku Cadang
             </h1>
             <p className="text-xs text-[#777871] mt-0.5">
-              Kontrol harga retail, batch stock, dan visibilitas suku cadang resmi workshop TORSI.
+              Kontrol harga retail, batch stock, dan visibilitas suku cadang resmi workshop MELTUNE AUTO.
             </p>
           </div>
           <button

@@ -9,21 +9,31 @@ import { Wrench, Calendar, CheckCircle2, Clock, AlertCircle, ArrowRight } from '
 
 export default function MechanicDashboardPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [bays, setBays] = useState([
+    { bay: 'Bay 1 (Lift Hidrolik A)', status: 'In Inspection', vehicle: 'Mazda 3 Hatchback (B 8832 KLO)', service: 'Suspension Laser Alignment', tech: 'Hendra Wijaya' },
+    { bay: 'Bay 2 (Lift Hidrolik B)', status: 'In Progress', vehicle: 'Honda Civic Turbo (B 1045 TRS)', service: 'Advanced Engine Tune-Up', tech: 'Hendra Wijaya' },
+    { bay: 'Bay 3 (Pit Wheel Aligner)', status: 'Standby / Ready', vehicle: '-', service: 'Ready for allocation', tech: 'Agus Salim' },
+    { bay: 'Bay 4 (Kelistrikan & AC)', status: 'Standby / Ready', vehicle: '-', service: 'Ready for allocation', tech: 'Fauzi Rahmat' },
+  ]);
 
   useEffect(() => {
     api.bookings.getAll().then(setBookings);
+    api.dashboard.getMechanicDashboard().then(data => {
+      if (data?.activeBayAllocations?.length > 0) {
+        setBays(data.activeBayAllocations.map((b: any, i: number) => ({
+          bay: `Bay ${i + 1}`,
+          status: b.status,
+          vehicle: b.vehicle,
+          service: b.service,
+          tech: 'Teknisi MELTUNE',
+        })));
+      }
+    }).catch(() => {});
   }, []);
 
   const pendingBookings = bookings.filter(b => b.status === 'pending');
   const activeBookings = bookings.filter(b => b.status === 'confirmed' || b.status === 'in_progress');
   const completedToday = bookings.filter(b => b.status === 'completed');
-
-  const BAYS = [
-    { bay: 'Bay 1 (Lift Hidrolik A)', status: 'In Inspection', vehicle: 'Mazda 3 Hatchback (B 8832 KLO)', service: 'Suspension Laser Alignment', tech: 'Hendra Wijaya' },
-    { bay: 'Bay 2 (Lift Hidrolik B)', status: 'In Progress', vehicle: 'Honda Civic Turbo (B 1045 TRS)', service: 'Advanced Engine Tune-Up', tech: 'Hendra Wijaya' },
-    { bay: 'Bay 3 (Pit Wheel Aligner)', status: 'Standby / Ready', vehicle: '-', service: 'Ready for allocation', tech: 'Agus Salim' },
-    { bay: 'Bay 4 (Kelistrikan & AC)', status: 'Standby / Ready', vehicle: '-', service: 'Ready for allocation', tech: 'Fauzi Rahmat' },
-  ];
 
   return (
     <MechanicLayout>
@@ -86,11 +96,11 @@ export default function MechanicDashboardPage() {
         <div className="bg-[#FFFFFF] p-6 rounded border border-[#E4E1D9] space-y-4">
           <h2 className="text-base font-bold text-[#242522] font-heading flex items-center gap-2">
             <Wrench size={16} className="text-[#D96B3A]" />
-            <span>Kondisi Real-Time 4 Workbay TORSI BSD</span>
+            <span>Kondisi Real-Time 4 Workbay MELTUNE AUTO BSD</span>
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {BAYS.map((bay, idx) => {
+            {bays.map((bay, idx) => {
               const isOccupied = bay.vehicle !== '-';
               return (
                 <div

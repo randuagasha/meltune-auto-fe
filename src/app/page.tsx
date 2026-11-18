@@ -25,13 +25,13 @@ export default function HomePage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
               <div className="lg:col-span-7 space-y-6">
                 <span className="text-xs uppercase tracking-widest text-[#D96B3A] font-semibold">
-                  TORSI Workshop Tangerang Selatan
+                  MELTUNE AUTO Workshop Tangerang Selatan
                 </span>
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-[#242522] leading-[1.08] tracking-tight">
                   Perawatan kendaraan yang tepat, presisi tanpa kompromi.
                 </h1>
                 <p className="text-lg text-[#777871] leading-relaxed max-w-2xl">
-                  TORSI menyatukan diagnostik digital terkalibrasi, mekanik spesialis bersertifikasi, dan transparansi pengerjaan penuh untuk setiap kilometer perjalanan Anda.
+                  MELTUNE AUTO menyatukan diagnostik digital terkalibrasi, mekanik spesialis bersertifikasi, dan transparansi pengerjaan penuh untuk setiap kilometer perjalanan Anda.
                 </p>
                 <div className="pt-2 flex flex-wrap items-center gap-4">
                   <Link
@@ -69,7 +69,7 @@ export default function HomePage() {
                 <div className="aspect-4/3 rounded-lg overflow-hidden border border-[#E4E1D9] shadow-md bg-[#242522]">
                   <img
                     src="https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&q=80&w=1200"
-                    alt="TORSI Workshop Workbay"
+                    alt="MELTUNE AUTO Workshop Workbay"
                     className="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-700"
                   />
                 </div>
@@ -230,7 +230,7 @@ export default function HomePage() {
                 Alur Pemesanan
               </span>
               <h2 className="text-3xl font-extrabold text-[#242522] font-heading mt-1">
-                Cara Reservasi Servis di TORSI
+                Cara Reservasi Servis di MELTUNE AUTO
               </h2>
               <p className="text-sm text-[#777871] mt-2">
                 Tanpa antrean fisik tidak pasti. Booking waktu kedatangan dan verifikasi teknisi siap di workbay.
@@ -277,7 +277,7 @@ export default function HomePage() {
               <div className="lg:col-span-8 space-y-3">
                 <span className="text-xs uppercase tracking-widest text-[#D96B3A] font-semibold flex items-center gap-1.5">
                   <Sparkles size={14} />
-                  Program Loyalitas TORSI
+                  Program Loyalitas MELTUNE AUTO
                 </span>
                 <h2 className="text-2xl sm:text-3xl font-bold font-heading text-white">
                   Check-in harian. Kumpulkan poin. Tukar reward perawatan.
@@ -314,7 +314,7 @@ export default function HomePage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
                 {
-                  quote: 'Bawa Civic Turbo ke TORSI karena ada getaran rem pada kecepatan tinggi. Mekanik menjelaskan runout rotor dengan micrometer gauge sebelum ambil tindakan bubut.',
+                  quote: 'Bawa Civic Turbo ke MELTUNE AUTO karena ada getaran rem pada kecepatan tinggi. Mekanik menjelaskan runout rotor dengan micrometer gauge sebelum ambil tindakan bubut.',
                   name: 'Budi Santoso',
                   car: 'Honda Civic FK7',
                 },
@@ -350,7 +350,7 @@ export default function HomePage() {
               Siap merasakan standar perawatan kendaraan yang sesungguhnya?
             </h2>
             <p className="text-base text-[#777871] max-w-xl mx-auto">
-              Jadwalkan servis Anda hari ini di workbay kami atau konsultasikan gejala kendala mobil Anda langsung dengan teknisi kepala TORSI.
+              Jadwalkan servis Anda hari ini di workbay kami atau konsultasikan gejala kendala mobil Anda langsung dengan teknisi kepala MELTUNE AUTO.
             </p>
             <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
               <Link

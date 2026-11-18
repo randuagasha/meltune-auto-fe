@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
+import { api } from '@/services';
 import {
   TrendingUp,
   DollarSign,
@@ -12,43 +13,88 @@ import {
   ArrowUpRight,
 } from 'lucide-react';
 
+const defaultStats = {
+  dailyRevenue: 2450000,
+  monthlyRevenue: 34800000,
+  yearlyRevenue: 218500000,
+  totalBookings: 148,
+  completedBookings: 132,
+  pendingBookings: 5,
+  cancelledBookings: 11,
+  totalCustomers: 86,
+  totalMechanics: 4,
+  productSales: 64,
+};
+
+const defaultPopularServices = [
+  { name: 'Advanced Engine Tune-Up', bookings: 54, share: 36, revenue: 35100000 },
+  { name: 'Full Synthetic Fluid & Filter', bookings: 42, share: 28, revenue: 35700000 },
+  { name: 'Precision Brake Overhaul', bookings: 26, share: 18, revenue: 14300000 },
+  { name: 'Suspension Laser Alignment', bookings: 16, share: 11, revenue: 7200000 },
+  { name: 'Climate Purge & Ozone', bookings: 10, share: 7, revenue: 5000000 },
+];
+
+const defaultMonthlyTrends = [
+  { month: 'Jun', total: 25700000, service: 18200000, parts: 7500000 },
+  { month: 'Jul', total: 30600000, service: 21400000, parts: 9200000 },
+  { month: 'Agu', total: 34100000, service: 24000000, parts: 10100000 },
+  { month: 'Sep', total: 31700000, service: 22800000, parts: 8900000 },
+  { month: 'Okt', total: 37900000, service: 26500000, parts: 11400000 },
+  { month: 'Nov', total: 34800000, service: 23100000, parts: 11700000 },
+];
+
 export default function AdminDashboardPage() {
-  const stats = {
-    dailyRevenue: 2450000,
-    monthlyRevenue: 34800000,
-    yearlyRevenue: 218500000,
-    totalBookings: 148,
-    completedBookings: 132,
-    pendingBookings: 5,
-    cancelledBookings: 11,
-    totalCustomers: 86,
-    totalMechanics: 4,
-    productSales: 64,
-  };
+  const [stats, setStats] = useState(defaultStats);
+  const [popularServices, setPopularServices] = useState(defaultPopularServices);
+  const [monthlyTrends, setMonthlyTrends] = useState(defaultMonthlyTrends);
 
-  const popularServices = [
-    { name: 'Advanced Engine Tune-Up', bookings: 54, share: 36, revenue: 35100000 },
-    { name: 'Full Synthetic Fluid & Filter', bookings: 42, share: 28, revenue: 35700000 },
-    { name: 'Precision Brake Overhaul', bookings: 26, share: 18, revenue: 14300000 },
-    { name: 'Suspension Laser Alignment', bookings: 16, share: 11, revenue: 7200000 },
-    { name: 'Climate Purge & Ozone', bookings: 10, share: 7, revenue: 5000000 },
-  ];
-
-  const monthlyTrends = [
-    { month: 'Jun', total: 25700000, service: 18200000, parts: 7500000 },
-    { month: 'Jul', total: 30600000, service: 21400000, parts: 9200000 },
-    { month: 'Agu', total: 34100000, service: 24000000, parts: 10100000 },
-    { month: 'Sep', total: 31700000, service: 22800000, parts: 8900000 },
-    { month: 'Okt', total: 37900000, service: 26500000, parts: 11400000 },
-    { month: 'Nov', total: 34800000, service: 23100000, parts: 11700000 },
-  ];
+  useEffect(() => {
+    api.dashboard.getAdminAnalytics().then(data => {
+      if (data?.overview) {
+        setStats({
+          dailyRevenue: data.overview.dailyRevenue || defaultStats.dailyRevenue,
+          monthlyRevenue: data.overview.monthlyRevenue || defaultStats.monthlyRevenue,
+          yearlyRevenue: data.overview.yearlyRevenue || defaultStats.yearlyRevenue,
+          totalBookings: data.overview.totalBookings || defaultStats.totalBookings,
+          completedBookings: data.overview.completedBookings || defaultStats.completedBookings,
+          pendingBookings: data.overview.pendingBookings || defaultStats.pendingBookings,
+          cancelledBookings: data.overview.cancelledBookings || defaultStats.cancelledBookings,
+          totalCustomers: data.overview.totalCustomers || defaultStats.totalCustomers,
+          totalMechanics: data.overview.totalMechanics || defaultStats.totalMechanics,
+          productSales: data.overview.productSalesCount || defaultStats.productSales,
+        });
+      }
+      if (data?.popularServices?.length > 0) {
+        setPopularServices(
+          data.popularServices.map((s: any) => ({
+            name: s.name,
+            bookings: s.bookingsCount,
+            share: s.sharePercent,
+            revenue: s.revenue || 0,
+          }))
+        );
+      }
+      if (data?.revenueTrends?.length > 0) {
+        setMonthlyTrends(
+          data.revenueTrends.map((t: any) => ({
+            month: t.month,
+            total: (t.serviceRevenue || 0) + (t.partsRevenue || 0),
+            service: t.serviceRevenue || 0,
+            parts: t.partsRevenue || 0,
+          }))
+        );
+      }
+    }).catch(() => {
+      // Keep defaults
+    });
+  }, []);
 
   return (
     <AdminLayout>
       <div className="space-y-8">
         <div>
           <span className="text-xs font-semibold uppercase tracking-wider text-[#D96B3A]">
-            Eksekutif Workshop TORSI BSD
+            Eksekutif Workshop MELTUNE AUTO BSD
           </span>
           <h1 className="text-2xl font-extrabold text-[#242522] font-heading mt-1">
             Analitik Performa & Finansial Bisnis
@@ -74,7 +120,7 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="bg-[#FFFFFF] p-5 rounded border border-[#E4E1D9] flex flex-col justify-between">
-            <span className="text-xs text-[#777871]">Pendapatan Bulan Ini (Nov)</span>
+            <span className="text-xs text-[#777871]">Pendapatan Bulan Ini</span>
             <div className="mt-3">
               <div className="text-2xl font-extrabold text-[#D96B3A] font-heading">
                 Rp {stats.monthlyRevenue.toLocaleString('id-ID')}
@@ -89,7 +135,11 @@ export default function AdminDashboardPage() {
               <div className="text-2xl font-extrabold text-[#242522] font-heading">
                 {stats.completedBookings} / {stats.totalBookings}
               </div>
-              <div className="text-[11px] text-emerald-700 mt-0.5 font-medium">92% tingkat penyelesaian</div>
+              <div className="text-[11px] text-emerald-700 mt-0.5 font-medium">
+                {stats.totalBookings > 0
+                  ? `${Math.round((stats.completedBookings / stats.totalBookings) * 100)}% tingkat penyelesaian`
+                  : '0% tingkat penyelesaian'}
+              </div>
             </div>
           </div>
 
@@ -109,9 +159,9 @@ export default function AdminDashboardPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <h2 className="text-base font-bold text-[#242522] font-heading">
-                Tren Pendapatan 6 Bulan Terakhir (Jasa Servis vs Penjualan Suku Cadang)
+                Tren Pendapatan Bulanan (Jasa Servis vs Penjualan Suku Cadang)
               </h2>
-              <p className="text-xs text-[#777871]">Proporsi omzet workshop fisik dan toko produk TORSI.</p>
+              <p className="text-xs text-[#777871]">Proporsi omzet workshop fisik dan toko produk MELTUNE AUTO.</p>
             </div>
             <div className="flex items-center gap-4 text-xs">
               <div className="flex items-center gap-1.5">
@@ -127,9 +177,9 @@ export default function AdminDashboardPage() {
 
           <div className="grid grid-cols-6 gap-3 items-end h-48 pt-6 border-b border-[#E4E1D9]">
             {monthlyTrends.map((item, i) => {
-              const maxVal = 40000000;
-              const serviceHeight = (item.service / maxVal) * 100;
-              const partsHeight = (item.parts / maxVal) * 100;
+              const maxVal = Math.max(...monthlyTrends.map(t => t.total), 40000000);
+              const serviceHeight = maxVal > 0 ? (item.service / maxVal) * 100 : 0;
+              const partsHeight = maxVal > 0 ? (item.parts / maxVal) * 100 : 0;
               return (
                 <div key={i} className="flex flex-col items-center h-full justify-end group">
                   <div className="text-[10px] text-[#777871] mb-1 opacity-0 group-hover:opacity-100 transition-opacity">

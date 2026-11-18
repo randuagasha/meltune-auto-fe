@@ -12,13 +12,13 @@ export default function AboutPage() {
           {/* Header */}
           <div className="max-w-3xl">
             <span className="text-xs uppercase tracking-widest text-[#D96B3A] font-semibold">
-              Tentang TORSI Workshop
+              Tentang MELTUNE AUTO Workshop
             </span>
             <h1 className="text-3xl sm:text-5xl font-extrabold text-[#242522] font-heading mt-2 leading-tight">
               Presisi Mekanikal Tanpa Kompromi untuk Setiap Kilometer.
             </h1>
             <p className="text-base text-[#777871] mt-4 leading-relaxed">
-              Nama <strong>TORSI</strong> terinspirasi dari torsi putaran mesin, manifestasi daya mekanikal murni, akurasi setelan, dan transfer tenaga sempurna ke aspal. Kami mendirikan workshop ini sebagai antitesis terhadap bengkel tradisional yang minim transparansi dan manipulatif.
+              <strong>MELTUNE AUTO</strong> hadir untuk memberikan standar perawatan kendaraan tertinggi dengan manifestasi daya mekanikal murni, akurasi setelan, dan transfer tenaga sempurna ke aspal. Kami mendirikan workshop ini sebagai antitesis terhadap bengkel tradisional yang minim transparansi dan manipulatif.
             </p>
           </div>
 
@@ -27,7 +27,7 @@ export default function AboutPage() {
             <div className="lg:col-span-6 rounded overflow-hidden border border-[#E4E1D9] aspect-4/3 bg-neutral-900">
               <img
                 src="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&q=80&w=1200"
-                alt="Fasilitas Workshop TORSI"
+                alt="Fasilitas Workshop MELTUNE AUTO"
                 className="w-full h-full object-cover"
               />
             </div>
@@ -36,10 +36,10 @@ export default function AboutPage() {
                 Satu Workshop Fisik Terpusat di BSD, Tangerang Selatan
               </h2>
               <p className="text-sm text-[#777871] leading-relaxed">
-                TORSI bukan platform marketplace perantara bengkel abal-abal. Kami beroperasi secara nyata dengan workshop tunggal seluas 850 m² yang dilengkapi empat lift workbay hidrolik berkekuatan 4 ton, peralatan laser wheel aligner digital Corghi, dan scanner diagnostik OEM level pabrikan.
+                MELTUNE AUTO bukan platform marketplace perantara bengkel abal-abal. Kami beroperasi secara nyata dengan workshop tunggal seluas 850 m² yang dilengkapi empat lift workbay hidrolik berkekuatan 4 ton, peralatan laser wheel aligner digital Corghi, dan scanner diagnostik OEM level pabrikan.
               </p>
               <p className="text-sm text-[#777871] leading-relaxed">
-                Setiap mekanik yang menangani mobil Anda adalah teknisi tetap bersertifikasi yang wajib mematuhi lembar kerja inspeksi 48 poin dan kalibrasi torsi torsi-kunci sebelum kendaraan diserahterimakan.
+                Setiap mekanik yang menangani mobil Anda adalah teknisi tetap bersertifikasi yang wajib mematuhi lembar kerja inspeksi 48 poin dan kalibrasi torsi kunci sebelum kendaraan diserahterimakan.
               </p>
             </div>
           </div>

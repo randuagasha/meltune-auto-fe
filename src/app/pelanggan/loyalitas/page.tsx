@@ -53,7 +53,7 @@ export default function CustomerLoyaltyPage() {
       <div className="space-y-8">
         <div>
           <h1 className="text-2xl font-extrabold text-[#242522] font-heading">
-            Loyalitas & Daily Streak TORSI
+            Loyalitas & Daily Streak MELTUNE AUTO
           </h1>
           <p className="text-xs text-[#777871] mt-0.5">
             Dapatkan reward suku cadang dan produk perawatan terjangkau dengan menjaga streak harian Anda.

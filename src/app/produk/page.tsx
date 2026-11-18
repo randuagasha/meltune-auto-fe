@@ -48,7 +48,7 @@ export default function ProductsPage() {
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
               <span className="text-xs uppercase tracking-widest text-[#D96B3A] font-semibold">
-                TORSI Store & Parts
+                MELTUNE Store & Parts
               </span>
               <h1 className="text-3xl sm:text-4xl font-extrabold text-[#242522] font-heading mt-1">
                 Suku Cadang & Fluida Otomotif Terkurasi
@@ -167,10 +167,10 @@ export default function ProductsPage() {
               <ShieldCheck size={28} className="text-[#D96B3A] shrink-0" />
               <div>
                 <h4 className="text-base font-bold text-[#242522] font-heading">
-                  Jaminan Penjualan Resmi TORSI (Bukan Multi-Vendor)
+                  Jaminan Penjualan Resmi MELTUNE AUTO (Bukan Multi-Vendor)
                 </h4>
                 <p className="text-xs text-[#777871] mt-1 leading-relaxed max-w-3xl">
-                  Seluruh barang dalam katalog ini dijual langsung oleh workshop TORSI. Kami tidak mengizinkan penjual pihak ketiga. Setiap batch oli dan suku cadang memiliki nomor lot manufaktur yang dapat diverifikasi keasliannya saat servis.
+                  Seluruh barang dalam katalog ini dijual langsung oleh workshop MELTUNE AUTO. Kami tidak mengizinkan penjual pihak ketiga. Setiap batch oli dan suku cadang memiliki nomor lot manufaktur yang dapat diverifikasi keasliannya saat servis.
                 </p>
               </div>
             </div>

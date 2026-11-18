@@ -36,7 +36,7 @@ export default function MechanicBookingManagementPage() {
 
   const handleConfirmReject = async () => {
     if (!rejectingId || !rejectionReason.trim()) return;
-    await api.bookings.updateStatus(rejectingId, 'cancelled', { rejectionReason });
+    await api.bookings.updateStatus(rejectingId, 'rejected', { rejectionReason });
     setRejectingId(null);
     setRejectionReason('');
     loadBookings();
@@ -44,7 +44,7 @@ export default function MechanicBookingManagementPage() {
 
   const handleSaveNotes = async () => {
     if (!noteBookingId) return;
-    await api.bookings.updateStatus(noteBookingId, undefined as any, { mechanicNotes });
+    await api.bookings.updateNotes(noteBookingId, mechanicNotes);
     setNoteBookingId(null);
     setMechanicNotes('');
     loadBookings();

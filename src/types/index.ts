@@ -33,7 +33,7 @@ export interface ServiceItem {
   isActive: boolean;
 }
 
-export type BookingStatus = 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
+export type BookingStatus = 'pending' | 'confirmed' | 'in_progress' | 'waiting_for_parts' | 'completed' | 'cancelled' | 'rejected';
 
 export interface Booking {
   id: string;

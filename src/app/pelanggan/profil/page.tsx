@@ -7,8 +7,8 @@ import { User, Phone, Mail, Shield, CheckCircle2 } from 'lucide-react';
 
 export default function CustomerProfilePage() {
   const { user } = useAuth();
-  const [fullName, setFullName] = useState(user.fullName);
-  const [phone, setPhone] = useState(user.phone || '+6281234567890');
+  const [fullName, setFullName] = useState(user?.fullName || '');
+  const [phone, setPhone] = useState(user?.phone || '');
   const [saved, setSaved] = useState(false);
 
   const handleSave = (e: React.FormEvent) => {
@@ -42,10 +42,10 @@ export default function CustomerProfilePage() {
               {fullName.slice(0, 1)}
             </div>
             <div>
-              <h3 className="text-base font-bold text-[#242522]">{fullName}</h3>
-              <div className="text-xs text-[#777871]">{user.email}</div>
+              <h3 className="text-base font-bold text-[#242522]">{fullName || 'Pelanggan'}</h3>
+              <div className="text-xs text-[#777871]">{user?.email || '-'}</div>
               <span className="inline-block mt-1 bg-orange-100 text-[#D96B3A] text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">
-                Role: {user.role}
+                Role: {user?.role || 'customer'}
               </span>
             </div>
           </div>
@@ -66,7 +66,7 @@ export default function CustomerProfilePage() {
               <input
                 type="email"
                 disabled
-                value={user.email}
+                value={user?.email || ''}
                 className="w-full px-3 py-2 bg-[#ECEAE4] border border-[#E4E1D9] rounded text-[#777871] cursor-not-allowed"
               />
               <span className="text-[10px] text-[#777871] mt-0.5 block">

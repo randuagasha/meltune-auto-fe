@@ -36,7 +36,7 @@ export default function ServicesPage() {
           {/* Header */}
           <div className="max-w-2xl mb-10">
             <span className="text-xs uppercase tracking-widest text-[#D96B3A] font-semibold">
-              Katalog Layanan TORSI
+              Katalog Layanan MELTUNE AUTO
             </span>
             <h1 className="text-3xl sm:text-4xl font-extrabold text-[#242522] font-heading mt-1">
               Presisi Mekanikal untuk Setiap Komponen
@@ -127,7 +127,7 @@ export default function ServicesPage() {
                   Garansi Pengerjaan & Suku Cadang Asli
                 </h4>
                 <p className="text-xs text-[#777871] mt-0.5">
-                  Seluruh pekerjaan bengkel TORSI dilindungi garansi 14 hari atau 1.000 km kalibrasi ulang tanpa biaya tambahan.
+                  Seluruh pekerjaan bengkel MELTUNE AUTO dilindungi garansi 14 hari atau 1.000 km kalibrasi ulang tanpa biaya tambahan.
                 </p>
               </div>
             </div>
