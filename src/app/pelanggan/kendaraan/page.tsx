@@ -6,6 +6,8 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import { api } from '@/services';
 import { Vehicle } from '@/types';
 import { Car, Plus, Trash2, Edit2, Check, X, Shield, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { modalOverlayVariants, modalContentVariants, EASE_LUXURY } from '@/lib/motion';
 
 export default function CustomerVehiclesPage() {
   const { user } = useAuth();
@@ -181,9 +183,10 @@ export default function CustomerVehiclesPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {vehicles.map(v => (
-              <div
+              <motion.div
                 key={v.id}
-                className="bg-[#FFFFFF] border border-[#E4E1D9] rounded p-6 flex flex-col justify-between space-y-4 hover:shadow-sm transition-shadow"
+                whileHover={{ y: -4, transition: { duration: 0.25, ease: EASE_LUXURY } }}
+                className="bg-[#FFFFFF] border border-[#E4E1D9] rounded p-6 flex flex-col justify-between space-y-4 hover:shadow-md hover:border-[#D96B3A]/40 transition-colors shadow-2xs"
               >
                 <div>
                   <div className="flex items-start justify-between">
@@ -247,15 +250,28 @@ export default function CustomerVehiclesPage() {
                     Booking Servis untuk Mobil Ini
                   </a>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
 
         {/* Modal Form Add/Edit */}
-        {showModal && (
-          <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-[#FFFFFF] border border-[#E4E1D9] rounded-lg max-w-md w-full p-6 space-y-4 shadow-xl">
+        <AnimatePresence>
+          {showModal && (
+            <motion.div
+              variants={modalOverlayVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+            >
+              <motion.div
+                variants={modalContentVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="bg-[#FFFFFF] border border-[#E4E1D9] rounded-lg max-w-md w-full p-6 space-y-4 shadow-xl"
+              >
               <div className="flex items-center justify-between pb-3 border-b border-[#E4E1D9]">
                 <h3 className="text-base font-bold text-[#242522] font-heading">
                   {editingId ? 'Perbarui Data Kendaraan' : 'Tambah Mobil Baru'}
@@ -394,9 +410,10 @@ export default function CustomerVehiclesPage() {
                   </button>
                 </div>
               </form>
-            </div>
-          </div>
-        )}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </CustomerLayout>
   );

@@ -5,6 +5,8 @@ import { CustomerLayout } from '@/components/layout/CustomerLayout';
 import { api } from '@/services';
 import { LoyaltyProfile, RewardItem } from '@/types';
 import { Sparkles, Flame, Gift, CheckCircle2, AlertCircle } from 'lucide-react';
+import { motion } from 'motion/react';
+import { EASE_LUXURY, fadeInUp, staggerContainer } from '@/lib/motion';
 
 export default function CustomerLoyaltyPage() {
   const [loyalty, setLoyalty] = useState<LoyaltyProfile | null>(null);
@@ -75,8 +77,17 @@ export default function CustomerLoyaltyPage() {
         )}
 
         {/* Top Cards: Streak & Balance */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-[#FFFFFF] p-6 rounded border border-[#E4E1D9] flex items-center gap-4">
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+        >
+          <motion.div
+            variants={fadeInUp}
+            whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            className="bg-[#FFFFFF] p-6 rounded border border-[#E4E1D9] flex items-center gap-4 shadow-sm"
+          >
             <div className="w-12 h-12 rounded bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
               <Flame size={24} />
             </div>
@@ -87,9 +98,13 @@ export default function CustomerLoyaltyPage() {
               </div>
               <div className="text-[11px] text-[#777871]">Rekor terpanjang: {loyalty?.longestStreak || 0} hari</div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-[#FFFFFF] p-6 rounded border border-[#E4E1D9] flex items-center gap-4">
+          <motion.div
+            variants={fadeInUp}
+            whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            className="bg-[#FFFFFF] p-6 rounded border border-[#E4E1D9] flex items-center gap-4 shadow-sm"
+          >
             <div className="w-12 h-12 rounded bg-orange-50 text-[#D96B3A] flex items-center justify-center shrink-0">
               <Sparkles size={24} />
             </div>
@@ -100,22 +115,28 @@ export default function CustomerLoyaltyPage() {
               </div>
               <div className="text-[11px] text-[#777871]">Siap ditukar suku cadang</div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-[#242522] text-[#F5F4F0] p-6 rounded border border-neutral-800 flex flex-col justify-between">
+          <motion.div
+            variants={fadeInUp}
+            whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            className="bg-[#242522] text-[#F5F4F0] p-6 rounded border border-neutral-800 flex flex-col justify-between shadow-sm"
+          >
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-amber-400">Tombol Check-in Harian</span>
               <span className="text-[10px] text-neutral-400">Reset 00:00 WIB</span>
             </div>
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.96 }}
               onClick={handleDailyCheckIn}
               disabled={loading}
               className="mt-4 bg-[#D96B3A] hover:bg-[#BF582D] text-white text-xs font-semibold py-2.5 rounded transition-colors text-center disabled:opacity-50"
             >
               {loading ? 'Menghitung Streak...' : 'Lakukan Check-In Hari Ini'}
-            </button>
-          </div>
-        </div>
+            </motion.button>
+          </motion.div>
+        </motion.div>
 
         {/* Rewards Catalog */}
         <div className="space-y-4">
@@ -132,13 +153,14 @@ export default function CustomerLoyaltyPage() {
             {rewards.map(r => {
               const canAfford = (loyalty?.points || 0) >= r.pointsCost && r.stock > 0;
               return (
-                <div
+                <motion.div
                   key={r.id}
-                  className="bg-[#FFFFFF] border border-[#E4E1D9] rounded overflow-hidden flex flex-col justify-between"
+                  whileHover={{ y: -6, transition: { duration: 0.2 } }}
+                  className="bg-[#FFFFFF] border border-[#E4E1D9] rounded overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow"
                 >
                   <div>
                     <div className="aspect-square bg-neutral-900 overflow-hidden relative">
-                      <img src={r.imageUrl} alt={r.title} className="w-full h-full object-cover" />
+                      <img src={r.imageUrl} alt={r.title} className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
                       <div className="absolute top-2 right-2 bg-[#242522]/80 backdrop-blur text-white text-[10px] font-semibold px-2 py-0.5 rounded">
                         Sisa: {r.stock}
                       </div>
@@ -156,7 +178,8 @@ export default function CustomerLoyaltyPage() {
                       <span className="text-xs font-bold text-[#D96B3A] font-heading">
                         {r.pointsCost} Poin
                       </span>
-                      <button
+                      <motion.button
+                        whileTap={{ scale: canAfford ? 0.94 : 1 }}
                         disabled={!canAfford}
                         onClick={() => handleRedeem(r.id)}
                         className={`text-xs font-semibold px-3 py-1.5 rounded transition-colors ${
@@ -166,10 +189,10 @@ export default function CustomerLoyaltyPage() {
                         }`}
                       >
                         {r.stock === 0 ? 'Habis' : 'Tukar Voucher'}
-                      </button>
+                      </motion.button>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>

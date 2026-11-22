@@ -5,6 +5,8 @@ import { MechanicLayout } from '@/components/layout/MechanicLayout';
 import { api } from '@/services';
 import { Booking } from '@/types';
 import { CheckCircle2, XCircle, Clock, Camera, FileText, Wrench, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { modalOverlayVariants, modalContentVariants } from '@/lib/motion';
 
 export default function MechanicBookingManagementPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -281,91 +283,113 @@ export default function MechanicBookingManagementPage() {
         </div>
 
         {/* Modal Reject Booking */}
-        {rejectingId && (
-          <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-[#FFFFFF] border border-[#E4E1D9] rounded-lg max-w-md w-full p-6 space-y-4 shadow-xl">
-              <div className="flex items-center justify-between pb-3 border-b border-[#E4E1D9]">
-                <h3 className="text-base font-bold text-[#242522] font-heading">
-                  Alasan Penolakan Booking
-                </h3>
-                <button onClick={() => setRejectingId(null)} className="text-[#777871]">
-                  <X size={18} />
-                </button>
-              </div>
+        <AnimatePresence>
+          {rejectingId && (
+            <motion.div
+              variants={modalOverlayVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+            >
+              <motion.div
+                variants={modalContentVariants}
+                className="bg-[#FFFFFF] border border-[#E4E1D9] rounded-lg max-w-md w-full p-6 space-y-4 shadow-xl"
+              >
+                <div className="flex items-center justify-between pb-3 border-b border-[#E4E1D9]">
+                  <h3 className="text-base font-bold text-[#242522] font-heading">
+                    Alasan Penolakan Booking
+                  </h3>
+                  <button onClick={() => setRejectingId(null)} className="text-[#777871] hover:text-[#242522]">
+                    <X size={18} />
+                  </button>
+                </div>
 
-              <div className="text-xs text-[#777871]">
-                Tuliskan alasan penolakan secara jelas agar pelanggan dapat menjadwalkan ulang atau memahami kendala ketersediaan suku cadang/workbay.
-              </div>
+                <div className="text-xs text-[#777871]">
+                  Tuliskan alasan penolakan secara jelas agar pelanggan dapat menjadwalkan ulang atau memahami kendala ketersediaan suku cadang/workbay.
+                </div>
 
-              <textarea
-                rows={3}
-                required
-                value={rejectionReason}
-                onChange={e => setRejectionReason(e.target.value)}
-                placeholder="Contoh: Suku cadang filter oli model ini sedang dalam pengiriman distributor, slot dialihkan ke hari kerja berikutnya."
-                className="w-full px-3 py-2 text-xs bg-[#F5F4F0] border border-[#E4E1D9] rounded text-[#242522] focus:outline-none focus:border-[#D96B3A]"
-              />
+                <textarea
+                  rows={3}
+                  required
+                  value={rejectionReason}
+                  onChange={e => setRejectionReason(e.target.value)}
+                  placeholder="Contoh: Suku cadang filter oli model ini sedang dalam pengiriman distributor, slot dialihkan ke hari kerja berikutnya."
+                  className="w-full px-3 py-2 text-xs bg-[#F5F4F0] border border-[#E4E1D9] rounded text-[#242522] focus:outline-none focus:border-[#D96B3A]"
+                />
 
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setRejectingId(null)}
-                  className="px-4 py-2 text-xs text-[#777871]"
-                >
-                  Batal
-                </button>
-                <button
-                  type="button"
-                  onClick={handleConfirmReject}
-                  className="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-4 py-2 rounded"
-                >
-                  Kirim Penolakan
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setRejectingId(null)}
+                    className="px-4 py-2 text-xs text-[#777871]"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleConfirmReject}
+                    className="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-4 py-2 rounded transition-colors"
+                  >
+                    Kirim Penolakan
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Modal Mechanic Notes */}
-        {noteBookingId && (
-          <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-[#FFFFFF] border border-[#E4E1D9] rounded-lg max-w-md w-full p-6 space-y-4 shadow-xl">
-              <div className="flex items-center justify-between pb-3 border-b border-[#E4E1D9]">
-                <h3 className="text-base font-bold text-[#242522] font-heading">
-                  Catat Kemajuan atau Temuan Teknis
-                </h3>
-                <button onClick={() => setNoteBookingId(null)} className="text-[#777871]">
-                  <X size={18} />
-                </button>
-              </div>
+        <AnimatePresence>
+          {noteBookingId && (
+            <motion.div
+              variants={modalOverlayVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+            >
+              <motion.div
+                variants={modalContentVariants}
+                className="bg-[#FFFFFF] border border-[#E4E1D9] rounded-lg max-w-md w-full p-6 space-y-4 shadow-xl"
+              >
+                <div className="flex items-center justify-between pb-3 border-b border-[#E4E1D9]">
+                  <h3 className="text-base font-bold text-[#242522] font-heading">
+                    Catat Kemajuan atau Temuan Teknis
+                  </h3>
+                  <button onClick={() => setNoteBookingId(null)} className="text-[#777871] hover:text-[#242522]">
+                    <X size={18} />
+                  </button>
+                </div>
 
-              <textarea
-                rows={4}
-                value={mechanicNotes}
-                onChange={e => setMechanicNotes(e.target.value)}
-                placeholder="Catat nomor bay, spesifikasi oli yang diisi, torsi baut roda yang diterapkan, atau rekomendasi perbaikan lanjut..."
-                className="w-full px-3 py-2 text-xs bg-[#F5F4F0] border border-[#E4E1D9] rounded text-[#242522] focus:outline-none focus:border-[#D96B3A]"
-              />
+                <textarea
+                  rows={4}
+                  value={mechanicNotes}
+                  onChange={e => setMechanicNotes(e.target.value)}
+                  placeholder="Catat nomor bay, spesifikasi oli yang diisi, torsi baut roda yang diterapkan, atau rekomendasi perbaikan lanjut..."
+                  className="w-full px-3 py-2 text-xs bg-[#F5F4F0] border border-[#E4E1D9] rounded text-[#242522] focus:outline-none focus:border-[#D96B3A]"
+                />
 
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setNoteBookingId(null)}
-                  className="px-4 py-2 text-xs text-[#777871]"
-                >
-                  Batal
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSaveNotes}
-                  className="bg-[#D96B3A] hover:bg-[#BF582D] text-white text-xs font-semibold px-4 py-2 rounded"
-                >
-                  Simpan Catatan Servis
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setNoteBookingId(null)}
+                    className="px-4 py-2 text-xs text-[#777871]"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSaveNotes}
+                    className="bg-[#D96B3A] hover:bg-[#BF582D] text-white text-xs font-semibold px-4 py-2 rounded transition-colors"
+                  >
+                    Simpan Catatan Servis
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </MechanicLayout>
   );

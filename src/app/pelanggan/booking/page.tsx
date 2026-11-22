@@ -21,6 +21,8 @@ import {
   X,
   Loader2,
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { modalOverlayVariants, modalContentVariants, EASE_LUXURY } from '@/lib/motion';
 
 const TIME_SLOTS = [
   '08:30 - 10:00',
@@ -258,7 +260,15 @@ export default function CustomerBookingPage() {
 
         {/* Step Content Container */}
         <div className="bg-[#FFFFFF] border border-[#E4E1D9] rounded p-6 sm:p-8">
-          {/* STEP 1: Select Registered Vehicle */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={step}
+              initial={{ opacity: 0, x: 14 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -14 }}
+              transition={{ duration: 0.25, ease: EASE_LUXURY }}
+            >
+              {/* STEP 1: Select Registered Vehicle */}
           {step === 1 && (
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -325,9 +335,22 @@ export default function CustomerBookingPage() {
               )}
 
               {/* Quick Add Vehicle Modal */}
-              {showAddVehicleModal && (
-                <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-                  <div className="bg-[#FFFFFF] border border-[#E4E1D9] rounded-lg max-w-md w-full p-6 space-y-4 shadow-xl text-xs">
+              <AnimatePresence>
+                {showAddVehicleModal && (
+                  <motion.div
+                    variants={modalOverlayVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+                  >
+                    <motion.div
+                      variants={modalContentVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      className="bg-[#FFFFFF] border border-[#E4E1D9] rounded-lg max-w-md w-full p-6 space-y-4 shadow-xl text-xs"
+                    >
                     <div className="flex items-center justify-between pb-3 border-b border-[#E4E1D9]">
                       <h3 className="text-base font-bold text-[#242522] font-heading flex items-center gap-2">
                         <Car size={16} className="text-[#D96B3A]" />
@@ -446,11 +469,12 @@ export default function CustomerBookingPage() {
                         </button>
                       </div>
                     </form>
-                  </div>
-                </div>
+                  </motion.div>
+                </motion.div>
               )}
-            </div>
-          )}
+            </AnimatePresence>
+          </div>
+        )}
 
           {/* STEP 2: Select Workshop Services */}
           {step === 2 && (
@@ -736,6 +760,8 @@ export default function CustomerBookingPage() {
               </div>
             </div>
           )}
+          </motion.div>
+          </AnimatePresence>
 
           {/* Wizard Controls */}
           {step < 8 && (

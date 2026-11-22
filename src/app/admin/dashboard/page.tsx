@@ -12,6 +12,8 @@ import {
   Award,
   ArrowUpRight,
 } from 'lucide-react';
+import { motion } from 'motion/react';
+import { EASE_LUXURY, fadeInUp, staggerContainer } from '@/lib/motion';
 
 const initialStats = {
   dailyRevenue: 0,
@@ -91,8 +93,17 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Revenue KPI Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-[#FFFFFF] p-5 rounded border border-[#E4E1D9] flex flex-col justify-between">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+        >
+          <motion.div
+            variants={fadeInUp}
+            whileHover={{ y: -4, transition: { duration: 0.25, ease: EASE_LUXURY } }}
+            className="bg-[#FFFFFF] p-5 rounded border border-[#E4E1D9] flex flex-col justify-between shadow-2xs hover:border-[#D96B3A]/40 transition-colors"
+          >
             <span className="text-xs text-[#777871]">Pendapatan Hari Ini</span>
             <div className="mt-3">
               <div className="text-2xl font-extrabold text-[#242522] font-heading">
@@ -103,9 +114,13 @@ export default function AdminDashboardPage() {
                 <span>+12% vs rata-rata harian</span>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-[#FFFFFF] p-5 rounded border border-[#E4E1D9] flex flex-col justify-between">
+          <motion.div
+            variants={fadeInUp}
+            whileHover={{ y: -4, transition: { duration: 0.25, ease: EASE_LUXURY } }}
+            className="bg-[#FFFFFF] p-5 rounded border border-[#E4E1D9] flex flex-col justify-between shadow-2xs hover:border-[#D96B3A]/40 transition-colors"
+          >
             <span className="text-xs text-[#777871]">Pendapatan Bulan Ini</span>
             <div className="mt-3">
               <div className="text-2xl font-extrabold text-[#D96B3A] font-heading">
@@ -113,9 +128,13 @@ export default function AdminDashboardPage() {
               </div>
               <div className="text-[11px] text-[#777871] mt-0.5">Target: Rp 40.000.000 (87%)</div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-[#FFFFFF] p-5 rounded border border-[#E4E1D9] flex flex-col justify-between">
+          <motion.div
+            variants={fadeInUp}
+            whileHover={{ y: -4, transition: { duration: 0.25, ease: EASE_LUXURY } }}
+            className="bg-[#FFFFFF] p-5 rounded border border-[#E4E1D9] flex flex-col justify-between shadow-2xs hover:border-[#D96B3A]/40 transition-colors"
+          >
             <span className="text-xs text-[#777871]">Total Reservasi Selesai</span>
             <div className="mt-3">
               <div className="text-2xl font-extrabold text-[#242522] font-heading">
@@ -127,9 +146,13 @@ export default function AdminDashboardPage() {
                   : '0% tingkat penyelesaian'}
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-[#FFFFFF] p-5 rounded border border-[#E4E1D9] flex flex-col justify-between">
+          <motion.div
+            variants={fadeInUp}
+            whileHover={{ y: -4, transition: { duration: 0.25, ease: EASE_LUXURY } }}
+            className="bg-[#FFFFFF] p-5 rounded border border-[#E4E1D9] flex flex-col justify-between shadow-2xs hover:border-[#D96B3A]/40 transition-colors"
+          >
             <span className="text-xs text-[#777871]">Pelanggan & Mekanik Aktif</span>
             <div className="mt-3">
               <div className="text-2xl font-extrabold text-[#242522] font-heading">
@@ -137,8 +160,8 @@ export default function AdminDashboardPage() {
               </div>
               <div className="text-[11px] text-[#777871] mt-0.5">4 Lift Workbay Beroperasi</div>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Revenue Trends Clean Visualization */}
         <div className="bg-[#FFFFFF] p-6 rounded border border-[#E4E1D9] space-y-6">

@@ -16,6 +16,8 @@ import {
   CheckCircle2,
   AlertCircle,
 } from 'lucide-react';
+import { motion } from 'motion/react';
+import { EASE_LUXURY, fadeInUp, staggerContainer } from '@/lib/motion';
 
 export default function CustomerDashboardPage() {
   const { user } = useAuth();
@@ -56,7 +58,12 @@ export default function CustomerDashboardPage() {
     <CustomerLayout>
       <div className="space-y-8">
         {/* Welcome Banner */}
-        <div className="bg-[#FFFFFF] p-6 sm:p-8 rounded border border-[#E4E1D9] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: EASE_LUXURY }}
+          className="bg-[#FFFFFF] p-6 sm:p-8 rounded border border-[#E4E1D9] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 shadow-2xs"
+        >
           <div>
             <span className="text-xs font-semibold uppercase tracking-wider text-[#D96B3A]">
               Customer Portal MELTUNE AUTO
@@ -68,19 +75,30 @@ export default function CustomerDashboardPage() {
               Ringkasan kondisi kendaraan, reservasi workbay, dan poin loyalty harian Anda.
             </p>
           </div>
-          <Link
-            href="/pelanggan/booking"
-            className="bg-[#D96B3A] hover:bg-[#BF582D] text-white text-xs font-semibold px-5 py-3 rounded transition-colors inline-flex items-center gap-2 shrink-0"
-          >
-            <CalendarCheck size={15} />
-            <span>Reservasi Servis Baru</span>
-          </Link>
-        </div>
+          <motion.div whileHover={{ scale: 1.03, y: -1 }} whileTap={{ scale: 0.97 }}>
+            <Link
+              href="/pelanggan/booking"
+              className="bg-[#D96B3A] hover:bg-[#BF582D] text-white text-xs font-semibold px-5 py-3 rounded transition-colors inline-flex items-center gap-2 shrink-0 shadow-xs"
+            >
+              <CalendarCheck size={15} />
+              <span>Reservasi Servis Baru</span>
+            </Link>
+          </motion.div>
+        </motion.div>
 
         {/* Top Metric Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+        >
           {/* Streak & Points Card */}
-          <div className="bg-[#FFFFFF] p-5 rounded border border-[#E4E1D9] flex flex-col justify-between">
+          <motion.div
+            variants={fadeInUp}
+            whileHover={{ y: -4, transition: { duration: 0.25, ease: EASE_LUXURY } }}
+            className="bg-[#FFFFFF] p-5 rounded border border-[#E4E1D9] flex flex-col justify-between shadow-2xs hover:border-[#D96B3A]/40 transition-colors"
+          >
             <div className="flex items-center justify-between">
               <span className="text-xs text-[#777871]">Streak Kunjungan</span>
               <div className="w-8 h-8 rounded bg-amber-50 text-amber-600 flex items-center justify-center">
@@ -93,9 +111,13 @@ export default function CustomerDashboardPage() {
               </div>
               <div className="text-[11px] text-[#777871] mt-0.5">Rekor terpanjang: {loyalty?.longestStreak || 0} hari</div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-[#FFFFFF] p-5 rounded border border-[#E4E1D9] flex flex-col justify-between">
+          <motion.div
+            variants={fadeInUp}
+            whileHover={{ y: -4, transition: { duration: 0.25, ease: EASE_LUXURY } }}
+            className="bg-[#FFFFFF] p-5 rounded border border-[#E4E1D9] flex flex-col justify-between shadow-2xs hover:border-[#D96B3A]/40 transition-colors"
+          >
             <div className="flex items-center justify-between">
               <span className="text-xs text-[#777871]">Poin Loyalitas</span>
               <div className="w-8 h-8 rounded bg-orange-50 text-[#D96B3A] flex items-center justify-center">
@@ -108,9 +130,13 @@ export default function CustomerDashboardPage() {
               </div>
               <div className="text-[11px] text-[#777871] mt-0.5">Dapat ditukar produk perawatan</div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-[#FFFFFF] p-5 rounded border border-[#E4E1D9] flex flex-col justify-between">
+          <motion.div
+            variants={fadeInUp}
+            whileHover={{ y: -4, transition: { duration: 0.25, ease: EASE_LUXURY } }}
+            className="bg-[#FFFFFF] p-5 rounded border border-[#E4E1D9] flex flex-col justify-between shadow-2xs hover:border-[#D96B3A]/40 transition-colors"
+          >
             <div className="flex items-center justify-between">
               <span className="text-xs text-[#777871]">Kendaraan Terdaftar</span>
               <div className="w-8 h-8 rounded bg-neutral-100 text-[#242522] flex items-center justify-center">
@@ -123,10 +149,14 @@ export default function CustomerDashboardPage() {
               </div>
               <div className="text-[11px] text-[#777871] mt-0.5">Siap dijadwalkan servis</div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Daily Check-in CTA Card */}
-          <div className="bg-[#242522] text-[#F5F4F0] p-5 rounded border border-neutral-800 flex flex-col justify-between">
+          <motion.div
+            variants={fadeInUp}
+            whileHover={{ y: -4, transition: { duration: 0.25, ease: EASE_LUXURY } }}
+            className="bg-[#242522] text-[#F5F4F0] p-5 rounded border border-neutral-800 flex flex-col justify-between shadow-2xs"
+          >
             <div>
               <div className="flex items-center gap-1.5 text-xs text-amber-400 font-semibold">
                 <Sparkles size={13} />
@@ -136,15 +166,16 @@ export default function CustomerDashboardPage() {
                 Klaim +15 s/d 40 poin loyalitas setiap hari.
               </p>
             </div>
-            <button
+            <motion.button
+              whileTap={{ scale: 0.96 }}
               onClick={handleDailyCheckIn}
               disabled={checkingIn}
-              className="mt-3 w-full bg-[#D96B3A] hover:bg-[#BF582D] text-white text-xs font-semibold py-2 rounded transition-colors text-center disabled:opacity-50"
+              className="mt-3 w-full bg-[#D96B3A] hover:bg-[#BF582D] text-white text-xs font-semibold py-2 rounded transition-colors text-center disabled:opacity-50 shadow-xs"
             >
               {checkingIn ? 'Memproses...' : 'Klaim Check-in'}
-            </button>
-          </div>
-        </div>
+            </motion.button>
+          </motion.div>
+        </motion.div>
 
         {checkInMsg && (
           <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs px-4 py-3 rounded flex items-center gap-2">

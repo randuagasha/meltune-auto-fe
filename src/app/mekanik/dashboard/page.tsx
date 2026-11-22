@@ -6,6 +6,8 @@ import { MechanicLayout } from '@/components/layout/MechanicLayout';
 import { api } from '@/services';
 import { Booking } from '@/types';
 import { Wrench, Calendar, CheckCircle2, Clock, AlertCircle, ArrowRight } from 'lucide-react';
+import { motion } from 'motion/react';
+import { fadeInUp, staggerContainer } from '@/lib/motion';
 
 const initialBays = [
   { bay: 'Bay 1 (Lift Hidrolik A)', status: 'Standby / Idle', vehicle: '-', service: 'Siap untuk alokasi servis', tech: 'Teknisi Jaga' },
@@ -53,8 +55,17 @@ export default function MechanicDashboardPage() {
         </div>
 
         {/* Operational Metrics */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <div className="bg-[#FFFFFF] p-6 rounded border border-[#E4E1D9] flex items-center justify-between">
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-1 sm:grid-cols-3 gap-6"
+        >
+          <motion.div
+            variants={fadeInUp}
+            whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            className="bg-[#FFFFFF] p-6 rounded border border-[#E4E1D9] flex items-center justify-between shadow-sm hover:shadow-md transition-shadow"
+          >
             <div>
               <div className="text-xs text-[#777871]">Menunggu Triage Mekanik</div>
               <div className="text-2xl font-extrabold text-[#D96B3A] font-heading mt-1">
@@ -65,9 +76,13 @@ export default function MechanicDashboardPage() {
             <div className="w-10 h-10 rounded bg-orange-50 text-[#D96B3A] flex items-center justify-center">
               <AlertCircle size={20} />
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-[#FFFFFF] p-6 rounded border border-[#E4E1D9] flex items-center justify-between">
+          <motion.div
+            variants={fadeInUp}
+            whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            className="bg-[#FFFFFF] p-6 rounded border border-[#E4E1D9] flex items-center justify-between shadow-sm hover:shadow-md transition-shadow"
+          >
             <div>
               <div className="text-xs text-[#777871]">Servis Aktif / Berjalan</div>
               <div className="text-2xl font-extrabold text-[#242522] font-heading mt-1">
@@ -78,9 +93,13 @@ export default function MechanicDashboardPage() {
             <div className="w-10 h-10 rounded bg-blue-50 text-blue-600 flex items-center justify-center">
               <Wrench size={20} />
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-[#FFFFFF] p-6 rounded border border-[#E4E1D9] flex items-center justify-between">
+          <motion.div
+            variants={fadeInUp}
+            whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            className="bg-[#FFFFFF] p-6 rounded border border-[#E4E1D9] flex items-center justify-between shadow-sm hover:shadow-md transition-shadow"
+          >
             <div>
               <div className="text-xs text-[#777871]">Selesai Servis Hari Ini</div>
               <div className="text-2xl font-extrabold text-emerald-700 font-heading mt-1">
@@ -91,8 +110,8 @@ export default function MechanicDashboardPage() {
             <div className="w-10 h-10 rounded bg-emerald-50 text-emerald-600 flex items-center justify-center">
               <CheckCircle2 size={20} />
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Workbay Allocation Status */}
         <div className="bg-[#FFFFFF] p-6 rounded border border-[#E4E1D9] space-y-4">
@@ -105,9 +124,10 @@ export default function MechanicDashboardPage() {
             {bays.map((bay, idx) => {
               const isOccupied = bay.vehicle !== '-' && bay.vehicle !== 'Empty / Standby' && bay.vehicle !== 'Belum Ada Alokasi';
               return (
-                <div
+                <motion.div
                   key={idx}
-                  className={`p-4 rounded border text-xs space-y-2 ${
+                  whileHover={{ y: -3, transition: { duration: 0.2 } }}
+                  className={`p-4 rounded border text-xs space-y-2 transition-shadow ${
                     isOccupied ? 'bg-orange-50/40 border-orange-200' : 'bg-[#F5F4F0] border-[#E4E1D9]'
                   }`}
                 >
@@ -132,7 +152,7 @@ export default function MechanicDashboardPage() {
                   <div className="pt-2 border-t border-[#E4E1D9] text-[10px] text-[#777871]">
                     Teknisi Jaga: <span className="font-semibold text-[#242522]">{bay.tech}</span>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
@@ -159,9 +179,10 @@ export default function MechanicDashboardPage() {
           ) : (
             <div className="space-y-3">
               {pendingBookings.map(b => (
-                <div
+                <motion.div
                   key={b.id}
-                  className="p-4 bg-[#F5F4F0] border border-[#E4E1D9] rounded flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs"
+                  whileHover={{ x: 4, transition: { duration: 0.18 } }}
+                  className="p-4 bg-[#F5F4F0] border border-[#E4E1D9] rounded flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs transition-shadow hover:shadow-sm"
                 >
                   <div>
                     <div className="flex items-center gap-2">
@@ -179,7 +200,7 @@ export default function MechanicDashboardPage() {
                   >
                     Tinjau Keluhan & Foto &rarr;
                   </Link>
-                </div>
+                </motion.div>
               ))}
             </div>
           )}

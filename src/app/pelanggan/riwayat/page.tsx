@@ -6,6 +6,8 @@ import { CustomerLayout } from '@/components/layout/CustomerLayout';
 import { api } from '@/services';
 import { Booking } from '@/types';
 import { Calendar, Clock, Car, CheckCircle2, XCircle, AlertCircle, Ban, Loader2 } from 'lucide-react';
+import { motion } from 'motion/react';
+import { fadeInUp, staggerContainer } from '@/lib/motion';
 
 export default function CustomerBookingHistoryPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -100,11 +102,13 @@ export default function CustomerBookingHistoryPage() {
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="space-y-4">
             {bookings.map(b => (
-              <div
+              <motion.div
                 key={b.id}
-                className="bg-[#FFFFFF] border border-[#E4E1D9] rounded p-6 space-y-4 hover:shadow-sm transition-shadow"
+                variants={fadeInUp}
+                whileHover={{ y: -3, transition: { duration: 0.2 } }}
+                className="bg-[#FFFFFF] border border-[#E4E1D9] rounded p-6 space-y-4 hover:shadow-md transition-shadow"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#E4E1D9]">
                   <div className="flex items-center gap-3">
@@ -182,9 +186,9 @@ export default function CustomerBookingHistoryPage() {
                     {b.rejectionReason}
                   </div>
                 )}
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
       </div>
     </CustomerLayout>

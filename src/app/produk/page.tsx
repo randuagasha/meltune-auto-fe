@@ -9,17 +9,19 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import { api } from '@/services';
 import { ProductItem } from '@/types';
 import { Search, ShoppingBag, Check, ShieldCheck, ArrowRight, Package } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { EASE_LUXURY, fadeInUp, staggerContainer } from '@/lib/motion';
 
 export default function ProductsPage() {
   const router = useRouter();
   const { user } = useAuth();
   const [products, setProducts] = useState<ProductItem[]>([]);
+  const [category, setCategory] = useState<string>('all');
   const [search, setSearch] = useState('');
-  const [category, setCategory] = useState('all');
   const [addedId, setAddedId] = useState<string | null>(null);
 
   useEffect(() => {
-    api.products.getAll().then(setProducts);
+    api.products.getAll().then(setProducts).catch(() => {});
   }, []);
 
   const categories = [
@@ -50,10 +52,15 @@ export default function ProductsPage() {
   return (
     <>
       <Header />
-      <main className="flex-1 py-16">
+      <main className="flex-1 py-16 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: EASE_LUXURY }}
+            className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4"
+          >
             <div>
               <span className="text-xs uppercase tracking-widest text-[#D96B3A] font-semibold">
                 MELTUNE Store & Parts
@@ -65,17 +72,24 @@ export default function ProductsPage() {
                 100% Produk Original dari distributor resmi. Tersedia untuk pengambilan di bengkel atau pengiriman ekspres.
               </p>
             </div>
-            <Link
-              href={user ? "/pelanggan/toko" : "/auth/login?redirect=/pelanggan/toko"}
-              className="bg-[#242522] text-[#F5F4F0] px-4 py-2.5 rounded text-xs font-semibold inline-flex items-center gap-2 hover:bg-[#383a35] transition-colors"
-            >
-              <ShoppingBag size={14} />
-              <span>Lihat Keranjang & Checkout</span>
-            </Link>
-          </div>
+            <motion.div whileHover={{ scale: 1.03, y: -1 }} whileTap={{ scale: 0.97 }}>
+              <Link
+                href={user ? "/pelanggan/toko" : "/auth/login?redirect=/pelanggan/toko"}
+                className="bg-[#242522] text-[#F5F4F0] px-4 py-2.5 rounded text-xs font-semibold inline-flex items-center gap-2 hover:bg-[#383a35] transition-colors shadow-xs"
+              >
+                <ShoppingBag size={14} />
+                <span>Lihat Keranjang & Checkout</span>
+              </Link>
+            </motion.div>
+          </motion.div>
 
           {/* Search and Filters Bar */}
-          <div className="bg-[#FFFFFF] p-4 rounded border border-[#E4E1D9] mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1, ease: EASE_LUXURY }}
+            className="bg-[#FFFFFF] p-4 rounded border border-[#E4E1D9] mb-8 flex flex-col md:flex-row gap-4 items-center justify-between shadow-2xs"
+          >
             <div className="relative w-full md:w-80">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#777871]" />
               <input
@@ -83,101 +97,131 @@ export default function ProductsPage() {
                 placeholder="Cari oli, filter, minyak rem..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 bg-[#F5F4F0] border border-[#E4E1D9] rounded text-xs text-[#242522] placeholder:text-[#777871] focus:outline-none focus:border-[#D96B3A]"
+                className="w-full pl-9 pr-3 py-2 bg-[#F5F4F0] border border-[#E4E1D9] rounded text-xs text-[#242522] placeholder:text-[#777871] focus:outline-none focus:border-[#D96B3A] transition-colors"
               />
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
-              {categories.map(cat => (
-                <button
-                  key={cat.id}
-                  onClick={() => setCategory(cat.id)}
-                  className={`px-3 py-1.5 text-xs rounded transition-colors font-medium ${
-                    category === cat.id
-                      ? 'bg-[#D96B3A] text-white'
-                      : 'bg-[#ECEAE4] text-[#242522] hover:bg-[#E4E1D9]'
-                  }`}
-                >
-                  {cat.label}
-                </button>
-              ))}
+            <div className="flex flex-wrap items-center gap-1.5 w-full md:w-auto">
+              {categories.map(cat => {
+                const active = category === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => setCategory(cat.id)}
+                    className={`relative px-3 py-1.5 text-xs rounded transition-colors font-medium ${
+                      active ? 'text-white' : 'text-[#242522] hover:bg-[#E4E1D9]/70'
+                    }`}
+                  >
+                    {active && (
+                      <motion.div
+                        layoutId="activeCategoryPill"
+                        className="absolute inset-0 bg-[#D96B3A] rounded shadow-xs -z-10"
+                        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                      />
+                    )}
+                    <span>{cat.label}</span>
+                  </button>
+                );
+              })}
             </div>
-          </div>
+          </motion.div>
 
           {/* Products Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filtered.map(product => (
-              <div
-                key={product.id}
-                className="bg-[#FFFFFF] border border-[#E4E1D9] rounded overflow-hidden flex flex-col justify-between group hover:shadow-md transition-shadow"
-              >
-                <div>
-                  <div className="aspect-square overflow-hidden bg-[#ECEAE4] border-b border-[#E4E1D9] relative flex items-center justify-center">
-                    {product.imageUrl ? (
-                      <img
-                        src={product.imageUrl}
-                        alt={product.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    ) : (
-                      <div className="flex flex-col items-center justify-center text-[#777871] p-4 text-center">
-                        <Package size={44} className="stroke-1 text-[#777871]/60 mb-1.5" />
-                        <span className="text-[11px] font-medium text-[#777871]">Foto Belum Diunggah</span>
-                      </div>
-                    )}
-                    <div className="absolute top-3 right-3 bg-[#242522]/80 backdrop-blur text-white text-[10px] font-semibold px-2 py-0.5 rounded">
-                      Stok: {product.stock} unit
-                    </div>
-                  </div>
-                  <div className="p-6 space-y-2">
-                    <div className="text-[11px] uppercase tracking-wider text-[#D96B3A] font-semibold">
-                      {product.category.replace('_', ' ')}
-                    </div>
-                    <h3 className="text-base font-bold text-[#242522] font-heading line-clamp-1">
-                      {product.name}
-                    </h3>
-                    <p className="text-xs text-[#777871] leading-relaxed line-clamp-2">
-                      {product.description}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="p-6 pt-0">
-                  <div className="pt-4 border-t border-[#E4E1D9] flex items-center justify-between">
-                    <div>
-                      <div className="text-[11px] text-[#777871]">Harga Satuan</div>
-                      <div className="text-base font-extrabold text-[#242522] font-heading">
-                        Rp {product.price.toLocaleString('id-ID')}
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => handleAddToCart(product)}
-                      className={`text-xs font-semibold px-3.5 py-2 rounded transition-colors inline-flex items-center gap-1.5 ${
-                        addedId === product.id
-                          ? 'bg-emerald-600 text-white'
-                          : 'bg-[#D96B3A] hover:bg-[#BF582D] text-white'
-                      }`}
-                    >
-                      {addedId === product.id ? (
-                        <>
-                          <Check size={14} />
-                          <span>Ditambahkan</span>
-                        </>
+          <motion.div
+            layout
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+          >
+            <AnimatePresence mode="popLayout">
+              {filtered.map(product => (
+                <motion.div
+                  layout
+                  key={product.id}
+                  initial={{ opacity: 0, scale: 0.94, y: 16 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.94, y: 12 }}
+                  transition={{ duration: 0.4, ease: EASE_LUXURY }}
+                  whileHover={{ y: -6, transition: { duration: 0.25, ease: EASE_LUXURY } }}
+                  className="bg-[#FFFFFF] border border-[#E4E1D9] rounded overflow-hidden flex flex-col justify-between group hover:shadow-md hover:border-[#D96B3A]/40 transition-colors"
+                >
+                  <div>
+                    <div className="aspect-square overflow-hidden bg-[#ECEAE4] border-b border-[#E4E1D9] relative flex items-center justify-center">
+                      {product.imageUrl ? (
+                        <img
+                          src={product.imageUrl}
+                          alt={product.name}
+                          className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-600 ease-out"
+                        />
                       ) : (
-                        <>
-                          <ShoppingBag size={14} />
-                          <span>+ Keranjang</span>
-                        </>
+                        <div className="flex flex-col items-center justify-center text-[#777871] p-4 text-center">
+                          <Package size={44} className="stroke-1 text-[#777871]/60 mb-1.5" />
+                          <span className="text-[11px] font-medium text-[#777871]">Foto Belum Diunggah</span>
+                        </div>
                       )}
-                    </button>
+                      <div className="absolute top-3 right-3 bg-[#242522]/80 backdrop-blur text-white text-[10px] font-semibold px-2 py-0.5 rounded shadow-xs">
+                        Stok: {product.stock} unit
+                      </div>
+                    </div>
+                    <div className="p-6 space-y-2">
+                      <div className="text-[11px] uppercase tracking-wider text-[#D96B3A] font-semibold">
+                        {product.category.replace('_', ' ')}
+                      </div>
+                      <h3 className="text-base font-bold text-[#242522] font-heading line-clamp-1">
+                        {product.name}
+                      </h3>
+                      <p className="text-xs text-[#777871] leading-relaxed line-clamp-2">
+                        {product.description}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
+
+                  <div className="p-6 pt-0">
+                    <div className="pt-4 border-t border-[#E4E1D9] flex items-center justify-between">
+                      <div>
+                        <div className="text-[11px] text-[#777871]">Harga Satuan</div>
+                        <div className="text-base font-extrabold text-[#242522] font-heading">
+                          Rp {product.price.toLocaleString('id-ID')}
+                        </div>
+                      </div>
+                      <motion.button
+                        whileTap={{ scale: 0.92 }}
+                        whileHover={{ scale: 1.04 }}
+                        onClick={() => handleAddToCart(product)}
+                        className={`text-xs font-semibold px-3.5 py-2 rounded transition-colors inline-flex items-center gap-1.5 shadow-xs ${
+                          addedId === product.id
+                            ? 'bg-emerald-600 text-white'
+                            : 'bg-[#D96B3A] hover:bg-[#BF582D] text-white'
+                        }`}
+                      >
+                        {addedId === product.id ? (
+                          <>
+                            <Check size={14} />
+                            <span>Ditambahkan</span>
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingBag size={14} />
+                            <span>+ Keranjang</span>
+                          </>
+                        )}
+                      </motion.button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
 
           {/* Direct Supply Assurance */}
-          <div className="mt-16 bg-[#FFFFFF] border border-[#E4E1D9] p-8 rounded">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, ease: EASE_LUXURY }}
+            className="mt-16 bg-[#FFFFFF] border border-[#E4E1D9] p-8 rounded shadow-2xs"
+          >
             <div className="flex items-start gap-4">
               <ShieldCheck size={28} className="text-[#D96B3A] shrink-0" />
               <div>
@@ -189,7 +233,7 @@ export default function ProductsPage() {
                 </p>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </main>
       <Footer />
