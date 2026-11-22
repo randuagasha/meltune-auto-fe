@@ -69,56 +69,50 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-[#F5F4F0] flex flex-col md:flex-row">
       {/* Sidebar Admin */}
-      <aside className="w-full md:w-68 bg-[#FFFFFF] border-r border-[#E4E1D9] flex flex-col justify-between shrink-0 shadow-xs">
-        <div>
-          <div className="p-6 border-b border-[#E4E1D9]">
-            <Logo />
-            <div className="mt-4 p-3 bg-[#242522] text-[#F5F4F0] rounded flex items-center gap-3 shadow-xs">
-              <div className="w-8 h-8 rounded bg-[#D96B3A] text-white flex items-center justify-center font-bold text-xs shrink-0">
-                <Shield size={14} />
-              </div>
-              <div className="overflow-hidden">
-                <div className="text-xs font-bold truncate">{user.fullName}</div>
-                <div className="text-[10px] text-amber-400 uppercase tracking-wider font-semibold">
-                  Superadmin Akses Penuh
-                </div>
+      <aside className="w-full md:w-68 md:h-screen md:sticky md:top-0 bg-[#FFFFFF] border-r border-[#E4E1D9] flex flex-col shrink-0 shadow-xs z-30">
+        {/* Brand & Profile Section */}
+        <div className="p-6 border-b border-[#E4E1D9] shrink-0">
+          <Logo />
+          <div className="mt-4 p-3 bg-[#242522] text-[#F5F4F0] rounded flex items-center gap-3 shadow-xs">
+            <div className="w-8 h-8 rounded bg-[#D96B3A] text-white flex items-center justify-center font-bold text-xs shrink-0">
+              <Shield size={14} />
+            </div>
+            <div className="overflow-hidden">
+              <div className="text-xs font-bold truncate">{user.fullName}</div>
+              <div className="text-[10px] text-amber-400 uppercase tracking-wider font-semibold">
+                Superadmin Akses Penuh
               </div>
             </div>
           </div>
-
-          <nav className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-230px)]">
-            {ADMIN_MENU.map(item => {
-              const active = pathname === item.href;
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`relative flex items-center justify-between px-3 py-2 rounded text-xs font-medium transition-colors ${
-                    active
-                      ? 'text-white font-semibold'
-                      : 'text-[#242522] hover:bg-[#ECEAE4]'
-                  }`}
-                >
-                  {active && (
-                    <motion.div
-                      layoutId="activeAdminNav"
-                      className="absolute inset-0 bg-[#D96B3A] rounded shadow-xs -z-10"
-                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                    />
-                  )}
-                  <div className="flex items-center gap-2.5">
-                    <Icon size={15} className={active ? 'text-white' : 'text-[#777871]'} />
-                    <span>{item.label}</span>
-                  </div>
-                  {active && <ChevronRight size={13} className="text-white" />}
-                </Link>
-              );
-            })}
-          </nav>
         </div>
 
-        <div className="p-4 border-t border-[#E4E1D9] space-y-2">
+        {/* Scrollable Navigation List */}
+        <nav className="flex-1 min-h-0 overflow-y-auto p-4 space-y-1">
+          {ADMIN_MENU.map(item => {
+            const active = pathname === item.href;
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center justify-between px-3 py-2 rounded text-xs font-medium transition-colors ${
+                  active
+                    ? 'bg-[#D96B3A] text-white font-semibold shadow-xs'
+                    : 'text-[#242522] hover:bg-[#ECEAE4]'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Icon size={15} className={active ? 'text-white' : 'text-[#777871]'} />
+                  <span>{item.label}</span>
+                </div>
+                {active && <ChevronRight size={13} className="text-white" />}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Fixed Footer Actions */}
+        <div className="p-4 border-t border-[#E4E1D9] space-y-2 shrink-0 mt-auto bg-[#FFFFFF]">
           <Link
             href="/"
             className="block text-center text-xs text-[#777871] hover:text-[#242522] py-1.5 transition-colors"
