@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { CustomerLayout } from '@/components/layout/CustomerLayout';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { useFreshnessEffect } from '@/hooks/useFreshnessEffect';
 import { api } from '@/services';
 import { Vehicle, Booking, LoyaltyProfile, ServiceItem } from '@/types';
 import {
@@ -28,7 +29,7 @@ export default function CustomerDashboardPage() {
   const [checkingIn, setCheckingIn] = useState(false);
   const [checkInMsg, setCheckInMsg] = useState<string | null>(null);
 
-  useEffect(() => {
+  useFreshnessEffect(() => {
     api.vehicles.getAll().then(setVehicles);
     api.bookings.getAll().then(setBookings);
     api.loyalty.getProfile().then(setLoyalty);

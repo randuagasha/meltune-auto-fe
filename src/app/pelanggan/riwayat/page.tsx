@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { CustomerLayout } from '@/components/layout/CustomerLayout';
+import { useFreshnessEffect } from '@/hooks/useFreshnessEffect';
 import { api } from '@/services';
 import { Booking } from '@/types';
 import { Calendar, Clock, Car, CheckCircle2, XCircle, AlertCircle, Ban, Loader2 } from 'lucide-react';
@@ -20,7 +21,7 @@ export default function CustomerBookingHistoryPage() {
     api.bookings.getAll().then(setBookings).catch(() => {});
   };
 
-  useEffect(() => {
+  useFreshnessEffect(() => {
     loadBookings();
   }, []);
 

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { CustomerLayout } from '@/components/layout/CustomerLayout';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { useFreshnessEffect } from '@/hooks/useFreshnessEffect';
 import { api } from '@/services';
 import { Vehicle } from '@/types';
 import { Car, Plus, Trash2, Edit2, Check, X, Shield, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
@@ -41,7 +42,7 @@ export default function CustomerVehiclesPage() {
     }
   };
 
-  useEffect(() => {
+  useFreshnessEffect(() => {
     loadVehicles();
   }, []);
 
