@@ -1,19 +1,6 @@
 import type { Metadata } from 'next';
-import { Manrope, Inter } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/components/auth/AuthProvider';
-
-const manrope = Manrope({
-  subsets: ['latin'],
-  variable: '--font-heading',
-  display: 'swap',
-});
-
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-body',
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   title: 'MELTUNE AUTO | Precision in Every Service',
@@ -26,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id" className={`${manrope.variable} ${inter.variable}`}>
+    <html lang="id">
       <body className="min-h-screen flex flex-col bg-[#F5F4F0] text-[#242522]">
         <AuthProvider>
           {children}

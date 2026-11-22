@@ -42,21 +42,23 @@ export default function AdminCustomersPage() {
 
   const handleToggleStatus = async (id: string, currentStatus: string) => {
     const nextStatus = currentStatus === 'active' ? 'suspended' : 'active';
+    setErrorMsg(null);
     try {
       await api.admin.updateCustomerStatus(id, nextStatus as 'active' | 'suspended');
       loadCustomers();
     } catch (err: any) {
-      alert(err.message || 'Gagal memperbarui status');
+      setErrorMsg(err.message || 'Gagal memperbarui status');
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Hapus akun pelanggan ini secara permanen dari Supabase Auth dan database?')) return;
+    setErrorMsg(null);
     try {
       await api.admin.deleteCustomer(id);
       loadCustomers();
     } catch (err: any) {
-      alert(err.message || 'Gagal menghapus akun');
+      setErrorMsg(err.message || 'Gagal menghapus akun');
     }
   };
 

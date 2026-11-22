@@ -1,20 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Logo } from '@/components/ui/Logo';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/lib/supabase';
 import { ArrowRight, Lock, Mail, AlertCircle } from 'lucide-react';
 
-const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK !== 'false';
-
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
-  const { switchRole, refreshUser } = useAuth();
-  const [email, setEmail] = useState('budi@meltune.id');
-  const [password, setPassword] = useState('password123');
+  const searchParams = useSearchParams();
+  const { refreshUser } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -22,22 +21,8 @@ export default function LoginPage() {
     e.preventDefault();
     setErrorMsg(null);
 
-    if (USE_MOCK) {
-      if (email.includes('admin')) {
-        switchRole('superadmin');
-        router.push('/admin/dashboard');
-      } else if (email.includes('hendra') || email.includes('mekanik')) {
-        switchRole('mechanic');
-        router.push('/mekanik/dashboard');
-      } else {
-        switchRole('customer');
-        router.push('/pelanggan/dashboard');
-      }
-      return;
-    }
-
     if (!supabase) {
-      setErrorMsg('Layanan autentikasi Supabase belum dikonfigurasi pada frontend.');
+      setErrorMsg('Layanan autentikasi Supabase belum terkonfigurasi.');
       return;
     }
 
@@ -49,7 +34,13 @@ export default function LoginPage() {
       });
 
       if (error) {
-        setErrorMsg(error.message === 'Invalid login credentials' ? 'Email atau kata sandi tidak cocok' : error.message);
+        if (error.message.includes('Invalid login credentials')) {
+          setErrorMsg('Alamat email atau kata sandi tidak cocok. Silakan coba lagi.');
+        } else if (error.message.includes('Email not confirmed')) {
+          setErrorMsg('Alamat email belum dikonfirmasi. Silakan periksa kotak masuk email Anda.');
+        } else {
+          setErrorMsg(error.message);
+        }
         return;
       }
 
@@ -57,14 +48,28 @@ export default function LoginPage() {
         await refreshUser();
         const { data: profile } = await supabase
           .from('profiles')
-          .select('role')
+          .select('role, is_active')
           .eq('id', data.user.id)
           .single();
 
+        if (profile && !profile.is_active) {
+          await supabase.auth.signOut();
+          setErrorMsg('Akun Anda ditangguhkan. Silakan hubungi layanan workshop MELTUNE AUTO.');
+          return;
+        }
+
         const role = profile?.role || 'customer';
-        if (role === 'superadmin') router.push('/admin/dashboard');
-        else if (role === 'mechanic') router.push('/mekanik/dashboard');
-        else router.push('/pelanggan/dashboard');
+        const redirectParam = searchParams.get('redirect');
+
+        if (redirectParam && redirectParam.startsWith('/')) {
+          router.push(redirectParam);
+        } else if (role === 'superadmin') {
+          router.push('/admin/dashboard');
+        } else if (role === 'mechanic') {
+          router.push('/mekanik/dashboard');
+        } else {
+          router.push('/pelanggan/dashboard');
+        }
       }
     } catch (err: any) {
       setErrorMsg(err.message || 'Gagal masuk ke akun');
@@ -73,6 +78,79 @@ export default function LoginPage() {
     }
   };
 
+  return (
+    <div className="bg-[#FFFFFF] py-8 px-6 shadow-sm border border-[#E4E1D9] sm:rounded-lg sm:px-10 space-y-6">
+      {errorMsg && (
+        <div className="bg-rose-50 border border-rose-200 text-rose-700 text-xs px-4 py-3 rounded flex items-center gap-2">
+          <AlertCircle size={16} className="shrink-0" />
+          <span>{errorMsg}</span>
+        </div>
+      )}
+
+      <form onSubmit={handleLogin} className="space-y-4">
+        <div>
+          <label className="block text-xs font-semibold text-[#242522] mb-1">
+            Alamat Email
+          </label>
+          <div className="relative">
+            <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#777871]" />
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="nama@email.com"
+              className="w-full pl-9 pr-3 py-2.5 text-xs bg-[#F5F4F0] border border-[#E4E1D9] rounded text-[#242522] focus:outline-none focus:border-[#D96B3A]"
+            />
+          </div>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-xs font-semibold text-[#242522]">
+              Kata Sandi
+            </label>
+            <Link
+              href="/auth/forgot-password"
+              className="text-[11px] font-medium text-[#D96B3A] hover:underline"
+            >
+              Lupa sandi?
+            </Link>
+          </div>
+          <div className="relative">
+            <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#777871]" />
+            <input
+              type="password"
+              required
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="w-full pl-9 pr-3 py-2.5 text-xs bg-[#F5F4F0] border border-[#E4E1D9] rounded text-[#242522] focus:outline-none focus:border-[#D96B3A]"
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-[#D96B3A] hover:bg-[#BF582D] text-white text-xs font-semibold py-3 rounded transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+        >
+          <span>{loading ? 'Memverifikasi...' : 'Masuk Sekarang'}</span>
+          <ArrowRight size={14} />
+        </button>
+      </form>
+
+      <div className="text-center text-xs text-[#777871]">
+        Belum memiliki akun?{' '}
+        <Link href="/auth/register" className="font-semibold text-[#D96B3A] hover:underline">
+          Daftar akun pelanggan baru
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#F5F4F0] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
@@ -86,114 +164,9 @@ export default function LoginPage() {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-[#FFFFFF] py-8 px-6 shadow-sm border border-[#E4E1D9] sm:rounded-lg sm:px-10 space-y-6">
-          {errorMsg && (
-            <div className="bg-rose-50 border border-rose-200 text-rose-700 text-xs px-4 py-3 rounded flex items-center gap-2">
-              <AlertCircle size={16} className="shrink-0" />
-              <span>{errorMsg}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-[#242522] mb-1">
-                Alamat Email
-              </label>
-              <div className="relative">
-                <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#777871]" />
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="nama@email.com"
-                  className="w-full pl-9 pr-3 py-2.5 text-xs bg-[#F5F4F0] border border-[#E4E1D9] rounded text-[#242522] focus:outline-none focus:border-[#D96B3A]"
-                />
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="block text-xs font-semibold text-[#242522]">
-                  Kata Sandi
-                </label>
-                <Link
-                  href="/auth/forgot-password"
-                  className="text-[11px] font-medium text-[#D96B3A] hover:underline"
-                >
-                  Lupa sandi?
-                </Link>
-              </div>
-              <div className="relative">
-                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#777871]" />
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full pl-9 pr-3 py-2.5 text-xs bg-[#F5F4F0] border border-[#E4E1D9] rounded text-[#242522] focus:outline-none focus:border-[#D96B3A]"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#D96B3A] hover:bg-[#BF582D] text-white text-xs font-semibold py-3 rounded transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-            >
-              <span>{loading ? 'Memverifikasi...' : 'Masuk Sekarang'}</span>
-              <ArrowRight size={14} />
-            </button>
-          </form>
-
-          {USE_MOCK && (
-            <div className="pt-4 border-t border-[#E4E1D9]">
-              <p className="text-[11px] text-[#777871] font-medium mb-2 text-center">
-                Pilihan Akun Demo (Mode Mock):
-              </p>
-              <div className="grid grid-cols-3 gap-2 text-center">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEmail('budi@meltune.id');
-                    setPassword('password');
-                  }}
-                  className="p-1.5 bg-[#ECEAE4] hover:bg-[#E4E1D9] rounded text-[10px] font-semibold text-[#242522]"
-                >
-                  Pelanggan
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEmail('hendra@meltune.id');
-                    setPassword('password');
-                  }}
-                  className="p-1.5 bg-[#ECEAE4] hover:bg-[#E4E1D9] rounded text-[10px] font-semibold text-[#242522]"
-                >
-                  Mekanik
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEmail('admin@meltune.id');
-                    setPassword('password');
-                  }}
-                  className="p-1.5 bg-[#ECEAE4] hover:bg-[#E4E1D9] rounded text-[10px] font-semibold text-[#242522]"
-                >
-                  Superadmin
-                </button>
-              </div>
-            </div>
-          )}
-
-          <div className="text-center text-xs text-[#777871]">
-            Belum memiliki akun?{' '}
-            <Link href="/auth/register" className="font-semibold text-[#D96B3A] hover:underline">
-              Daftar akun pelanggan baru
-            </Link>
-          </div>
-        </div>
+        <Suspense fallback={<div className="text-center text-xs text-[#777871]">Memuat formulir masuk...</div>}>
+          <LoginForm />
+        </Suspense>
       </div>
     </div>
   );

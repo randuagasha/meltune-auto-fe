@@ -27,7 +27,8 @@ export default function CustomerLoyaltyPage() {
     setLoading(false);
     if (res.success) {
       setFeedback({ type: 'success', message: res.message });
-      setLoyalty(res.profile);
+      const fresh = await api.loyalty.getProfile();
+      setLoyalty(fresh);
     } else {
       setFeedback({ type: 'error', message: res.message });
     }

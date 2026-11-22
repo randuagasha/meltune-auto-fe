@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { CustomerLayout } from '@/components/layout/CustomerLayout';
 import { api } from '@/services';
-import { SupportThread } from '@/types';
+import { SupportThread, Vehicle } from '@/types';
 import { MessageSquare, Send, CheckCircle2, Plus, X } from 'lucide-react';
 
 export default function CustomerSupportPage() {
@@ -11,9 +11,10 @@ export default function CustomerSupportPage() {
   const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState('');
   const [showNewModal, setShowNewModal] = useState(false);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
 
   const [newSubject, setNewSubject] = useState('');
-  const [newVehicle, setNewVehicle] = useState('Honda Civic Turbo 2021');
+  const [newVehicle, setNewVehicle] = useState('');
   const [newInitialMsg, setNewInitialMsg] = useState('');
 
   const loadThreads = () => {
@@ -25,6 +26,12 @@ export default function CustomerSupportPage() {
 
   useEffect(() => {
     loadThreads();
+    api.vehicles.getAll().then(v => {
+      setVehicles(v);
+      if (v.length > 0) {
+        setNewVehicle(`${v[0].brand} ${v[0].model} (${v[0].licensePlate})`);
+      }
+    });
   }, []);
 
   const activeThread = threads.find(t => t.id === activeThreadId);
@@ -198,14 +205,29 @@ export default function CustomerSupportPage() {
 
                 <div>
                   <label className="block font-semibold text-[#242522] mb-1">Model Mobil Terkait</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Contoh: Honda Civic Turbo 2021"
-                    value={newVehicle}
-                    onChange={e => setNewVehicle(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#F5F4F0] border border-[#E4E1D9] rounded text-[#242522] focus:outline-none focus:border-[#D96B3A]"
-                  />
+                  {vehicles.length > 0 ? (
+                    <select
+                      value={newVehicle}
+                      onChange={e => setNewVehicle(e.target.value)}
+                      className="w-full px-3 py-2 bg-[#F5F4F0] border border-[#E4E1D9] rounded text-[#242522] focus:outline-none focus:border-[#D96B3A]"
+                    >
+                      {vehicles.map(v => (
+                        <option key={v.id} value={`${v.brand} ${v.model} (${v.licensePlate})`}>
+                          {v.brand} {v.model} ({v.licensePlate})
+                        </option>
+                      ))}
+                      <option value="Pertanyaan Umum / Mobil Lain">Pertanyaan Umum / Mobil Lain</option>
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      required
+                      placeholder="Contoh: Honda Civic Turbo 2021"
+                      value={newVehicle}
+                      onChange={e => setNewVehicle(e.target.value)}
+                      className="w-full px-3 py-2 bg-[#F5F4F0] border border-[#E4E1D9] rounded text-[#242522] focus:outline-none focus:border-[#D96B3A]"
+                    />
+                  )}
                 </div>
 
                 <div>

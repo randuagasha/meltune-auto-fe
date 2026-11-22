@@ -2,17 +2,13 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { UserProfile, UserRole } from '@/types';
-import { api } from '@/services';
 import { supabase } from '@/lib/supabase';
-
-const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === 'true';
 
 interface AuthContextType {
   user: UserProfile | null;
   logout: () => Promise<void>;
   isReady: boolean;
   refreshUser: () => Promise<void>;
-  switchRole: (role: UserRole) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,18 +18,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isReady, setIsReady] = useState(false);
 
   const fetchProfile = useCallback(async (sessionUser?: any) => {
-    if (USE_MOCK) {
-      try {
-        const u = await api.auth.getCurrentUser();
-        setUser(u);
-      } catch {
-        setUser(null);
-      } finally {
-        setIsReady(true);
-      }
-      return;
-    }
-
     if (!supabase) {
       setUser(null);
       setIsReady(true);
@@ -64,13 +48,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           avatarUrl: profile.avatar_url,
         });
       } else if (profile && !profile.is_active) {
+        // Suspended account
         await supabase.auth.signOut();
         setUser(null);
       } else {
+        // Fallback for new users before trigger finishes
         setUser({
           id: currentUser.id,
           email: currentUser.email || '',
-          fullName: currentUser.user_metadata?.full_name || 'Pengguna MELTUNE',
+          fullName: currentUser.user_metadata?.full_name || 'Pelanggan MELTUNE',
           phone: currentUser.user_metadata?.phone || '',
           role: (currentUser.user_metadata?.role as UserRole) || 'customer',
         });
@@ -85,14 +71,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     fetchProfile();
 
-    if (USE_MOCK) {
-      const handler = () => {
-        api.auth.getCurrentUser().then(setUser);
-      };
-      window.addEventListener('torsi-storage-update', handler);
-      return () => window.removeEventListener('torsi-storage-update', handler);
-    }
-
     if (supabase) {
       const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
         if (session?.user) {
@@ -103,18 +81,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       });
       return () => subscription.unsubscribe();
+    } else {
+      setIsReady(true);
     }
   }, [fetchProfile]);
 
-  const switchRole = (role: UserRole) => {
-    if (USE_MOCK) {
-      const updated = api.auth.switchRole(role);
-      setUser(updated);
-    }
-  };
-
   const logout = async () => {
-    if (!USE_MOCK && supabase) {
+    if (supabase) {
       await supabase.auth.signOut();
     }
     setUser(null);
@@ -128,7 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, logout, isReady, refreshUser, switchRole }}>
+    <AuthContext.Provider value={{ user, logout, isReady, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

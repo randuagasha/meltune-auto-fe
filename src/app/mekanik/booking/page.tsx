@@ -18,8 +18,11 @@ export default function MechanicBookingManagementPage() {
   const [noteBookingId, setNoteBookingId] = useState<string | null>(null);
   const [mechanicNotes, setMechanicNotes] = useState('');
 
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
   const loadBookings = () => {
-    api.bookings.getAll().then(setBookings);
+    api.bookings.getAll().then(setBookings).catch(() => {});
   };
 
   useEffect(() => {
@@ -27,27 +30,48 @@ export default function MechanicBookingManagementPage() {
   }, []);
 
   const handleUpdateStatus = async (id: string, status: Booking['status']) => {
-    await api.bookings.updateStatus(id, status);
-    loadBookings();
-    if (selectedBooking?.id === id) {
-      setSelectedBooking(prev => (prev ? { ...prev, status } : null));
+    setErrorMsg(null);
+    try {
+      await api.bookings.updateStatus(id, status);
+      setSuccessMsg(`Status pengerjaan berhasil diubah ke '${status}'.`);
+      setTimeout(() => setSuccessMsg(null), 3500);
+      loadBookings();
+      if (selectedBooking?.id === id) {
+        setSelectedBooking(prev => (prev ? { ...prev, status } : null));
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Gagal mengubah status reservasi.');
     }
   };
 
   const handleConfirmReject = async () => {
     if (!rejectingId || !rejectionReason.trim()) return;
-    await api.bookings.updateStatus(rejectingId, 'rejected', { rejectionReason });
-    setRejectingId(null);
-    setRejectionReason('');
-    loadBookings();
+    setErrorMsg(null);
+    try {
+      await api.bookings.updateStatus(rejectingId, 'rejected', { rejectionReason });
+      setSuccessMsg('Reservasi berhasil ditolak dengan catatan.');
+      setTimeout(() => setSuccessMsg(null), 3500);
+      setRejectingId(null);
+      setRejectionReason('');
+      loadBookings();
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Gagal menolak reservasi.');
+    }
   };
 
   const handleSaveNotes = async () => {
     if (!noteBookingId) return;
-    await api.bookings.updateNotes(noteBookingId, mechanicNotes);
-    setNoteBookingId(null);
-    setMechanicNotes('');
-    loadBookings();
+    setErrorMsg(null);
+    try {
+      await api.bookings.updateNotes(noteBookingId, mechanicNotes);
+      setSuccessMsg('Catatan hasil inspeksi mekanik berhasil disimpan.');
+      setTimeout(() => setSuccessMsg(null), 3500);
+      setNoteBookingId(null);
+      setMechanicNotes('');
+      loadBookings();
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Gagal menyimpan catatan inspeksi.');
+    }
   };
 
   return (
@@ -61,6 +85,20 @@ export default function MechanicBookingManagementPage() {
             Periksa foto keluhan mobil pelanggan, konfirmasi atau tolak dengan alasan jelas, dan catat hasil inspeksi workbay.
           </p>
         </div>
+
+        {successMsg && (
+          <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs px-4 py-3 rounded flex items-center gap-2">
+            <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+            <span>{successMsg}</span>
+          </div>
+        )}
+
+        {errorMsg && (
+          <div className="bg-rose-50 border border-rose-200 text-rose-800 text-xs px-4 py-3 rounded flex items-center gap-2">
+            <XCircle size={16} className="text-rose-600 shrink-0" />
+            <span>{errorMsg}</span>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Booking List */}

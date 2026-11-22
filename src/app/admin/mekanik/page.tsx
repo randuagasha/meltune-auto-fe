@@ -44,6 +44,17 @@ export default function AdminMechanicsPage() {
     loadMechanics();
   }, []);
 
+  const handleToggleStatus = async (id: string, currentStatus: 'active' | 'inactive') => {
+    const nextStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    setErrorMsg(null);
+    try {
+      await api.admin.updateMechanic(id, { status: nextStatus });
+      loadMechanics();
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Gagal mengubah status mekanik');
+    }
+  };
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
@@ -135,8 +146,18 @@ export default function AdminMechanicsPage() {
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-[#E4E1D9] text-[11px] text-[#777871]">
-                  Role: <span className="font-semibold text-[#242522]">Teknisi Workbay</span>
+                <div className="pt-3 border-t border-[#E4E1D9] flex items-center justify-between text-[11px] text-[#777871]">
+                  <span>Role: <strong className="text-[#242522]">Teknisi Workbay</strong></span>
+                  <button
+                    onClick={() => handleToggleStatus(m.id, m.status)}
+                    className={`text-[10px] font-semibold px-2.5 py-1 rounded transition-colors ${
+                      m.status === 'active'
+                        ? 'text-rose-600 hover:bg-rose-50 border border-rose-200'
+                        : 'text-emerald-700 hover:bg-emerald-50 border border-emerald-200'
+                    }`}
+                  >
+                    {m.status === 'active' ? 'Nonaktifkan' : 'Aktifkan'}
+                  </button>
                 </div>
               </div>
             ))

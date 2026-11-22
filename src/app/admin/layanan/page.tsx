@@ -10,6 +10,8 @@ export default function AdminServicesPage() {
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -65,13 +67,21 @@ export default function AdminServicesPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const servicePayload: ServiceItem = {
-      id: editingId || `srv_${Date.now()}`,
-      ...formData,
-    };
-    await api.services.save(servicePayload);
-    setShowModal(false);
-    loadServices();
+    setSubmitting(true);
+    setErrorMsg(null);
+    try {
+      const servicePayload: ServiceItem = {
+        id: editingId || `srv_${Date.now()}`,
+        ...formData,
+      };
+      await api.services.save(servicePayload);
+      setShowModal(false);
+      loadServices();
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Gagal menyimpan layanan');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -230,6 +240,12 @@ export default function AdminServicesPage() {
                   />
                 </div>
 
+                {errorMsg && (
+                  <div className="bg-rose-50 border border-rose-200 text-rose-700 text-xs px-3 py-2 rounded">
+                    {errorMsg}
+                  </div>
+                )}
+
                 <div className="pt-3 border-t border-[#E4E1D9] flex justify-end gap-2">
                   <button
                     type="button"
@@ -240,9 +256,10 @@ export default function AdminServicesPage() {
                   </button>
                   <button
                     type="submit"
-                    className="bg-[#D96B3A] hover:bg-[#BF582D] text-white font-semibold px-4 py-2 rounded"
+                    disabled={submitting}
+                    className="bg-[#D96B3A] hover:bg-[#BF582D] text-white font-semibold px-4 py-2 rounded transition-colors disabled:opacity-50"
                   >
-                    Simpan Layanan
+                    {submitting ? 'Menyimpan...' : 'Simpan Layanan'}
                   </button>
                 </div>
               </form>

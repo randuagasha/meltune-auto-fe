@@ -35,11 +35,19 @@ export default function CustomerDashboardPage() {
 
   const handleDailyCheckIn = async () => {
     setCheckingIn(true);
-    const res = await api.loyalty.checkIn();
-    setCheckInMsg(res.message);
-    setLoyalty(res.profile);
-    setCheckingIn(false);
-    setTimeout(() => setCheckInMsg(null), 4000);
+    try {
+      const res = await api.loyalty.checkIn();
+      setCheckInMsg(res.message);
+      if (res.success) {
+        const fresh = await api.loyalty.getProfile();
+        setLoyalty(fresh);
+      }
+    } catch (err: any) {
+      setCheckInMsg(err?.message || 'Check-in loyalty gagal diproses.');
+    } finally {
+      setCheckingIn(false);
+      setTimeout(() => setCheckInMsg(null), 4000);
+    }
   };
 
   const activeBooking = bookings.find(b => b.status === 'confirmed' || b.status === 'in_progress');
@@ -204,34 +212,47 @@ export default function CustomerDashboardPage() {
               </Link>
             </div>
 
-            <div className="space-y-3">
-              {vehicles.map(v => (
-                <div
-                  key={v.id}
-                  className="p-4 bg-[#F5F4F0] border border-[#E4E1D9] rounded flex items-center justify-between"
+            {vehicles.length === 0 ? (
+              <div className="p-8 text-center text-xs text-[#777871] bg-[#F5F4F0] rounded border border-[#E4E1D9] space-y-2">
+                <Car size={24} className="mx-auto text-[#777871]" />
+                <p>Belum ada kendaraan terdaftar pada akun Anda.</p>
+                <Link
+                  href="/pelanggan/kendaraan"
+                  className="inline-block text-xs font-semibold text-[#D96B3A] hover:underline"
                 >
-                  <div>
-                    <h3 className="text-sm font-bold text-[#242522]">
-                      {v.brand} {v.model} ({v.year})
-                    </h3>
-                    <div className="flex items-center gap-2 mt-1 text-xs text-[#777871]">
-                      <span className="font-mono bg-white px-2 py-0.5 rounded border border-[#E4E1D9] text-[#242522] font-semibold">
-                        {v.licensePlate}
-                      </span>
-                      <span className="capitalize">{v.transmission}</span>
-                      <span>•</span>
-                      <span className="capitalize">{v.fuelType}</span>
-                    </div>
-                  </div>
-                  <Link
-                    href={`/pelanggan/booking?vehicle=${v.id}`}
-                    className="text-xs font-semibold bg-[#242522] hover:bg-[#383a35] text-white px-3 py-1.5 rounded transition-colors"
+                  + Daftarkan Kendaraan Pertama Anda
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {vehicles.map(v => (
+                  <div
+                    key={v.id}
+                    className="p-4 bg-[#F5F4F0] border border-[#E4E1D9] rounded flex items-center justify-between"
                   >
-                    Booking Servis
-                  </Link>
-                </div>
-              ))}
-            </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-[#242522]">
+                        {v.brand} {v.model} ({v.year})
+                      </h3>
+                      <div className="flex items-center gap-2 mt-1 text-xs text-[#777871]">
+                        <span className="font-mono bg-white px-2 py-0.5 rounded border border-[#E4E1D9] text-[#242522] font-semibold">
+                          {v.licensePlate}
+                        </span>
+                        <span className="capitalize">{v.transmission}</span>
+                        <span>•</span>
+                        <span className="capitalize">{v.fuelType}</span>
+                      </div>
+                    </div>
+                    <Link
+                      href={`/pelanggan/booking?vehicle=${v.id}`}
+                      className="text-xs font-semibold bg-[#242522] hover:bg-[#383a35] text-white px-3 py-1.5 rounded transition-colors"
+                    >
+                      Booking Servis
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Recommended Maintenance */}
@@ -239,19 +260,25 @@ export default function CustomerDashboardPage() {
             <h2 className="text-base font-bold text-[#242522] font-heading">
               Rekomendasi Servis Berkala
             </h2>
-            <div className="space-y-3">
-              {services.slice(0, 3).map(s => (
-                <div key={s.id} className="p-3 bg-[#F5F4F0] rounded border border-[#E4E1D9] space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#242522]">{s.name}</span>
-                    <span className="text-xs font-extrabold text-[#D96B3A] font-heading">
-                      Rp {s.price.toLocaleString('id-ID')}
-                    </span>
+            {services.length === 0 ? (
+              <div className="p-6 text-center text-xs text-[#777871] bg-[#F5F4F0] rounded border border-[#E4E1D9]">
+                Tidak ada paket servis yang aktif saat ini.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {services.slice(0, 3).map(s => (
+                  <div key={s.id} className="p-3 bg-[#F5F4F0] rounded border border-[#E4E1D9] space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-[#242522]">{s.name}</span>
+                      <span className="text-xs font-extrabold text-[#D96B3A] font-heading">
+                        Rp {s.price.toLocaleString('id-ID')}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-[#777871] line-clamp-1">{s.description}</p>
                   </div>
-                  <p className="text-[11px] text-[#777871] line-clamp-1">{s.description}</p>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

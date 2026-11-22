@@ -1,20 +1,40 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CustomerLayout } from '@/components/layout/CustomerLayout';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { User, Phone, Mail, Shield, CheckCircle2 } from 'lucide-react';
+import { api } from '@/services';
+import { User, Phone, Mail, Shield, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 
 export default function CustomerProfilePage() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [fullName, setFullName] = useState(user?.fullName || '');
   const [phone, setPhone] = useState(user?.phone || '');
+  const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handleSave = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (user) {
+      setFullName(user.fullName || '');
+      setPhone(user.phone || '');
+    }
+  }, [user]);
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    setLoading(true);
+    setErrorMsg(null);
+    try {
+      await api.auth.updateProfile({ fullName, phone });
+      await refreshUser();
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err: any) {
+      setErrorMsg(err?.message || 'Gagal menyimpan pembaruan profil.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -33,6 +53,13 @@ export default function CustomerProfilePage() {
           <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs px-4 py-3 rounded flex items-center gap-2">
             <CheckCircle2 size={16} />
             <span>Profil berhasil diperbarui.</span>
+          </div>
+        )}
+
+        {errorMsg && (
+          <div className="bg-red-50 border border-red-200 text-red-800 text-xs px-4 py-3 rounded flex items-center gap-2">
+            <AlertCircle size={16} />
+            <span>{errorMsg}</span>
           </div>
         )}
 
@@ -86,9 +113,11 @@ export default function CustomerProfilePage() {
 
             <button
               type="submit"
-              className="bg-[#D96B3A] hover:bg-[#BF582D] text-white font-semibold px-6 py-2.5 rounded transition-colors"
+              disabled={loading}
+              className="bg-[#D96B3A] hover:bg-[#BF582D] text-white font-semibold px-6 py-2.5 rounded transition-colors disabled:opacity-50 inline-flex items-center gap-2"
             >
-              Simpan Perubahan
+              {loading && <Loader2 size={14} className="animate-spin" />}
+              <span>{loading ? 'Menyimpan...' : 'Simpan Perubahan'}</span>
             </button>
           </form>
         </div>

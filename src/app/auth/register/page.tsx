@@ -7,8 +7,6 @@ import { Logo } from '@/components/ui/Logo';
 import { supabase } from '@/lib/supabase';
 import { ArrowRight, Lock, Mail, User, Phone, AlertCircle, CheckCircle2 } from 'lucide-react';
 
-const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK !== 'false';
-
 export default function RegisterPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -26,13 +24,13 @@ export default function RegisterPage() {
     setErrorMsg(null);
     setSuccessMsg(null);
 
-    if (USE_MOCK) {
-      router.push('/auth/otp');
+    if (!supabase) {
+      setErrorMsg('Layanan Supabase belum terkonfigurasi.');
       return;
     }
 
-    if (!supabase) {
-      setErrorMsg('Layanan Supabase belum dikonfigurasi.');
+    if (formData.password.length < 8) {
+      setErrorMsg('Kata sandi harus minimal 8 karakter.');
       return;
     }
 
@@ -57,10 +55,12 @@ export default function RegisterPage() {
       if (data.session) {
         router.push('/pelanggan/dashboard');
       } else {
-        setSuccessMsg('Pendaftaran berhasil! Silakan periksa email Anda untuk tautan konfirmasi akun sebelum masuk.');
+        setSuccessMsg(
+          'Pendaftaran berhasil! Tautan konfirmasi telah dikirimkan ke alamat email Anda. Silakan verifikasi email Anda sebelum masuk.'
+        );
       }
     } catch (err: any) {
-      setErrorMsg(err.message || 'Gagal mendaftar');
+      setErrorMsg(err.message || 'Gagal mendaftar akun');
     } finally {
       setLoading(false);
     }
@@ -155,6 +155,7 @@ export default function RegisterPage() {
                 <input
                   type="password"
                   required
+                  minLength={8}
                   value={formData.password}
                   onChange={e => setFormData({ ...formData, password: e.target.value })}
                   placeholder="Minimal 8 karakter"

@@ -7,25 +7,27 @@ import { api } from '@/services';
 import { Booking } from '@/types';
 import { Wrench, Calendar, CheckCircle2, Clock, AlertCircle, ArrowRight } from 'lucide-react';
 
+const initialBays = [
+  { bay: 'Bay 1 (Lift Hidrolik A)', status: 'Standby / Idle', vehicle: '-', service: 'Siap untuk alokasi servis', tech: 'Teknisi Jaga' },
+  { bay: 'Bay 2 (Lift Hidrolik B)', status: 'Standby / Idle', vehicle: '-', service: 'Siap untuk alokasi servis', tech: 'Teknisi Jaga' },
+  { bay: 'Bay 3 (Pit Wheel Aligner)', status: 'Standby / Idle', vehicle: '-', service: 'Siap untuk alokasi servis', tech: 'Teknisi Jaga' },
+  { bay: 'Bay 4 (Kelistrikan & AC)', status: 'Standby / Idle', vehicle: '-', service: 'Siap untuk alokasi servis', tech: 'Teknisi Jaga' },
+];
+
 export default function MechanicDashboardPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [bays, setBays] = useState([
-    { bay: 'Bay 1 (Lift Hidrolik A)', status: 'In Inspection', vehicle: 'Mazda 3 Hatchback (B 8832 KLO)', service: 'Suspension Laser Alignment', tech: 'Hendra Wijaya' },
-    { bay: 'Bay 2 (Lift Hidrolik B)', status: 'In Progress', vehicle: 'Honda Civic Turbo (B 1045 TRS)', service: 'Advanced Engine Tune-Up', tech: 'Hendra Wijaya' },
-    { bay: 'Bay 3 (Pit Wheel Aligner)', status: 'Standby / Ready', vehicle: '-', service: 'Ready for allocation', tech: 'Agus Salim' },
-    { bay: 'Bay 4 (Kelistrikan & AC)', status: 'Standby / Ready', vehicle: '-', service: 'Ready for allocation', tech: 'Fauzi Rahmat' },
-  ]);
+  const [bays, setBays] = useState(initialBays);
 
   useEffect(() => {
     api.bookings.getAll().then(setBookings);
     api.dashboard.getMechanicDashboard().then(data => {
       if (data?.activeBayAllocations?.length > 0) {
         setBays(data.activeBayAllocations.map((b: any, i: number) => ({
-          bay: `Bay ${i + 1}`,
-          status: b.status,
-          vehicle: b.vehicle,
-          service: b.service,
-          tech: 'Teknisi MELTUNE',
+          bay: b.bayNumber || `Bay ${i + 1}`,
+          status: b.status || 'Standby / Idle',
+          vehicle: b.vehicle || '-',
+          service: b.service || 'Siap untuk alokasi servis',
+          tech: 'Teknisi Jaga',
         })));
       }
     }).catch(() => {});
@@ -101,7 +103,7 @@ export default function MechanicDashboardPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {bays.map((bay, idx) => {
-              const isOccupied = bay.vehicle !== '-';
+              const isOccupied = bay.vehicle !== '-' && bay.vehicle !== 'Empty / Standby' && bay.vehicle !== 'Belum Ada Alokasi';
               return (
                 <div
                   key={idx}

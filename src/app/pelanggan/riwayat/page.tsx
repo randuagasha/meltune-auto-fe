@@ -5,14 +5,38 @@ import Link from 'next/link';
 import { CustomerLayout } from '@/components/layout/CustomerLayout';
 import { api } from '@/services';
 import { Booking } from '@/types';
-import { Calendar, Clock, Car, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, Car, CheckCircle2, XCircle, AlertCircle, Ban, Loader2 } from 'lucide-react';
 
 export default function CustomerBookingHistoryPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const loadBookings = () => {
+    api.bookings.getAll().then(setBookings).catch(() => {});
+  };
 
   useEffect(() => {
-    api.bookings.getAll().then(setBookings);
+    loadBookings();
   }, []);
+
+  const handleCancelBooking = async (id: string) => {
+    if (!confirm('Apakah Anda yakin ingin membatalkan reservasi ini?')) return;
+    setActionLoading(true);
+    setErrorMsg(null);
+    try {
+      await api.bookings.updateStatus(id, 'cancelled');
+      setSuccessMsg('Reservasi berhasil dibatalkan.');
+      setTimeout(() => setSuccessMsg(null), 4000);
+      loadBookings();
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Gagal membatalkan reservasi.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   const getStatusBadge = (status: Booking['status']) => {
     switch (status) {
@@ -23,7 +47,9 @@ export default function CustomerBookingHistoryPage() {
       case 'completed':
         return <span className="bg-neutral-100 text-[#242522] text-[11px] font-semibold px-2.5 py-1 rounded">Selesai</span>;
       case 'cancelled':
-        return <span className="bg-rose-100 text-rose-800 text-[11px] font-semibold px-2.5 py-1 rounded">Ditolak / Dibatalkan</span>;
+        return <span className="bg-rose-100 text-rose-800 text-[11px] font-semibold px-2.5 py-1 rounded">Dibatalkan</span>;
+      case 'rejected':
+        return <span className="bg-rose-100 text-rose-800 text-[11px] font-semibold px-2.5 py-1 rounded">Ditolak Workshop</span>;
       default:
         return <span className="bg-orange-100 text-orange-800 text-[11px] font-semibold px-2.5 py-1 rounded">Menunggu Konfirmasi Mekanik</span>;
     }
@@ -49,6 +75,20 @@ export default function CustomerBookingHistoryPage() {
           </Link>
         </div>
 
+        {successMsg && (
+          <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs px-4 py-3 rounded flex items-center gap-2">
+            <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+            <span>{successMsg}</span>
+          </div>
+        )}
+
+        {errorMsg && (
+          <div className="bg-rose-50 border border-rose-200 text-rose-800 text-xs px-4 py-3 rounded flex items-center gap-2">
+            <AlertCircle size={16} className="text-rose-600 shrink-0" />
+            <span>{errorMsg}</span>
+          </div>
+        )}
+
         {bookings.length === 0 ? (
           <div className="bg-[#FFFFFF] border border-[#E4E1D9] p-12 text-center rounded space-y-3">
             <Calendar size={36} className="text-[#777871] mx-auto" />
@@ -73,9 +113,21 @@ export default function CustomerBookingHistoryPage() {
                     </span>
                     {getStatusBadge(b.status)}
                   </div>
-                  <div className="text-xs text-[#777871] flex items-center gap-1">
-                    <Clock size={13} />
-                    <span>Dibuat: {new Date(b.createdAt).toLocaleDateString('id-ID')}</span>
+                  <div className="flex items-center gap-3">
+                    <div className="text-xs text-[#777871] flex items-center gap-1">
+                      <Clock size={13} />
+                      <span>Dibuat: {new Date(b.createdAt).toLocaleDateString('id-ID')}</span>
+                    </div>
+                    {(b.status === 'pending' || b.status === 'confirmed') && (
+                      <button
+                        onClick={() => handleCancelBooking(b.id)}
+                        disabled={actionLoading}
+                        className="text-[11px] font-semibold text-rose-600 hover:text-rose-800 hover:bg-rose-50 border border-rose-200 px-2.5 py-1 rounded transition-colors inline-flex items-center gap-1"
+                      >
+                        <Ban size={12} />
+                        <span>Batalkan</span>
+                      </button>
+                    )}
                   </div>
                 </div>
 

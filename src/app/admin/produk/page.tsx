@@ -10,6 +10,8 @@ export default function AdminProductsPage() {
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -65,13 +67,21 @@ export default function AdminProductsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const payload: ProductItem = {
-      id: editingId || `prd_${Date.now()}`,
-      ...formData,
-    };
-    await api.products.save(payload);
-    setShowModal(false);
-    loadProducts();
+    setSubmitting(true);
+    setErrorMsg(null);
+    try {
+      const payload: ProductItem = {
+        id: editingId || `prd_${Date.now()}`,
+        ...formData,
+      };
+      await api.products.save(payload);
+      setShowModal(false);
+      loadProducts();
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Gagal menyimpan produk');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -236,6 +246,12 @@ export default function AdminProductsPage() {
                   />
                 </div>
 
+                {errorMsg && (
+                  <div className="bg-rose-50 border border-rose-200 text-rose-700 text-xs px-3 py-2 rounded">
+                    {errorMsg}
+                  </div>
+                )}
+
                 <div className="pt-3 border-t border-[#E4E1D9] flex justify-end gap-2">
                   <button
                     type="button"
@@ -246,9 +262,10 @@ export default function AdminProductsPage() {
                   </button>
                   <button
                     type="submit"
-                    className="bg-[#D96B3A] hover:bg-[#BF582D] text-white font-semibold px-4 py-2 rounded"
+                    disabled={submitting}
+                    className="bg-[#D96B3A] hover:bg-[#BF582D] text-white font-semibold px-4 py-2 rounded transition-colors disabled:opacity-50"
                   >
-                    Simpan Suku Cadang
+                    {submitting ? 'Menyimpan...' : 'Simpan Suku Cadang'}
                   </button>
                 </div>
               </form>

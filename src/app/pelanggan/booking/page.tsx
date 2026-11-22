@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { CustomerLayout } from '@/components/layout/CustomerLayout';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { api } from '@/services';
 import { Vehicle, ServiceItem, Booking } from '@/types';
 import {
@@ -16,6 +17,9 @@ import {
   ArrowRight,
   ArrowLeft,
   AlertCircle,
+  Plus,
+  X,
+  Loader2,
 } from 'lucide-react';
 
 const TIME_SLOTS = [
@@ -28,6 +32,7 @@ const TIME_SLOTS = [
 
 export default function CustomerBookingPage() {
   const router = useRouter();
+  const { user } = useAuth();
 
   // Wizard state: Step 1 to 8
   const [step, setStep] = useState(1);
@@ -44,15 +49,33 @@ export default function CustomerBookingPage() {
   const [problemDescription, setProblemDescription] = useState<string>('');
   const [uploadedPhotos, setUploadedPhotos] = useState<string[]>([]);
 
+  // Quick Add Vehicle Modal state
+  const [showAddVehicleModal, setShowAddVehicleModal] = useState(false);
+  const [newVehicleData, setNewVehicleData] = useState({
+    brand: '',
+    model: '',
+    year: 2024,
+    licensePlate: '',
+    transmission: 'automatic' as Vehicle['transmission'],
+    fuelType: 'petrol' as Vehicle['fuelType'],
+  });
+  const [addingVehicle, setAddingVehicle] = useState(false);
+  const [vehicleError, setVehicleError] = useState<string | null>(null);
+
   // Booking completion
   const [createdBooking, setCreatedBooking] = useState<Booking | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
+    const qVehicle = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('vehicle') : null;
     api.vehicles.getAll().then(v => {
       setVehicles(v);
-      if (v.length > 0) setSelectedVehicleId(v[0].id);
+      if (qVehicle && v.some(x => x.id === qVehicle)) {
+        setSelectedVehicleId(qVehicle);
+      } else if (v.length > 0) {
+        setSelectedVehicleId(v[0].id);
+      }
     });
     api.services.getAll().then(s => setServices(s));
 
@@ -61,6 +84,41 @@ export default function CustomerBookingPage() {
     tomorrow.setDate(tomorrow.getDate() + 1);
     setScheduledDate(tomorrow.toISOString().slice(0, 10));
   }, []);
+
+  const handleQuickAddVehicle = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setVehicleError(null);
+    if (!newVehicleData.brand.trim() || !newVehicleData.model.trim() || !newVehicleData.licensePlate.trim()) {
+      setVehicleError('Merek, model, dan plat nomor polisi wajib diisi.');
+      return;
+    }
+    setAddingVehicle(true);
+    try {
+      const created = await api.vehicles.create({
+        userId: user?.id || '',
+        ...newVehicleData,
+        brand: newVehicleData.brand.trim(),
+        model: newVehicleData.model.trim(),
+        licensePlate: newVehicleData.licensePlate.toUpperCase().trim(),
+      });
+      const updated = await api.vehicles.getAll();
+      setVehicles(updated);
+      setSelectedVehicleId(created.id);
+      setShowAddVehicleModal(false);
+      setNewVehicleData({
+        brand: '',
+        model: '',
+        year: new Date().getFullYear(),
+        licensePlate: '',
+        transmission: 'automatic',
+        fuelType: 'petrol',
+      });
+    } catch (err: any) {
+      setVehicleError(err.message || 'Gagal menambahkan kendaraan.');
+    } finally {
+      setAddingVehicle(false);
+    }
+  };
 
   const selectedVehicle = vehicles.find(v => v.id === selectedVehicleId);
   const selectedServices = services.filter(s => selectedServiceIds.includes(s.id));
@@ -167,20 +225,18 @@ export default function CustomerBookingPage() {
               return (
                 <div key={s.num} className="flex items-center gap-2">
                   <div
-                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold font-heading transition-colors ${
-                      done
-                        ? 'bg-emerald-600 text-white'
-                        : active
+                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold font-heading transition-colors ${done
+                      ? 'bg-emerald-600 text-white'
+                      : active
                         ? 'bg-[#D96B3A] text-white ring-4 ring-orange-100'
                         : 'bg-[#ECEAE4] text-[#777871]'
-                    }`}
+                      }`}
                   >
                     {done ? '✓' : s.num}
                   </div>
                   <span
-                    className={`text-[11px] font-medium whitespace-nowrap ${
-                      active ? 'text-[#242522] font-bold' : 'text-[#777871]'
-                    }`}
+                    className={`text-[11px] font-medium whitespace-nowrap ${active ? 'text-[#242522] font-bold' : 'text-[#777871]'
+                      }`}
                   >
                     {s.label}
                   </span>
@@ -205,23 +261,38 @@ export default function CustomerBookingPage() {
           {/* STEP 1: Select Registered Vehicle */}
           {step === 1 && (
             <div className="space-y-4">
-              <h3 className="text-base font-bold text-[#242522] font-heading flex items-center gap-2">
-                <Car size={18} className="text-[#D96B3A]" />
-                <span>Langkah 1: Pilih Kendaraan yang Akan Diservis</span>
-              </h3>
-              <p className="text-xs text-[#777871]">
-                Pilih dari daftar kendaraan terdaftar di akun Anda atau daftarkan mobil baru.
-              </p>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <h3 className="text-base font-bold text-[#242522] font-heading flex items-center gap-2">
+                    <Car size={18} className="text-[#D96B3A]" />
+                    <span>Langkah 1: Pilih Kendaraan yang Akan Diservis</span>
+                  </h3>
+                  <p className="text-xs text-[#777871] mt-0.5">
+                    Pilih dari daftar kendaraan terdaftar di akun Anda atau daftarkan mobil baru langsung di sini.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAddVehicleModal(true)}
+                  className="bg-[#D96B3A] hover:bg-[#BF582D] text-white text-xs font-semibold px-3 py-1.5 rounded transition-colors inline-flex items-center gap-1.5 shrink-0 self-start sm:self-auto"
+                >
+                  <Plus size={14} />
+                  <span>Tambah Mobil Baru</span>
+                </button>
+              </div>
 
               {vehicles.length === 0 ? (
-                <div className="p-6 bg-[#F5F4F0] rounded text-center space-y-2">
+                <div className="p-8 bg-[#F5F4F0] rounded border border-[#E4E1D9] text-center space-y-3">
+                  <Car size={32} className="text-[#777871] mx-auto" />
                   <p className="text-xs text-[#777871]">Anda belum memiliki kendaraan terdaftar.</p>
-                  <a
-                    href="/pelanggan/kendaraan"
-                    className="text-xs font-semibold text-[#D96B3A] underline"
+                  <button
+                    type="button"
+                    onClick={() => setShowAddVehicleModal(true)}
+                    className="bg-[#242522] hover:bg-[#383a35] text-white text-xs font-semibold px-4 py-2 rounded transition-colors inline-flex items-center gap-1.5"
                   >
-                    + Tambah Kendaraan Baru
-                  </a>
+                    <Plus size={14} />
+                    <span>Daftarkan Mobil Pertama Anda</span>
+                  </button>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
@@ -231,11 +302,10 @@ export default function CustomerBookingPage() {
                       <div
                         key={v.id}
                         onClick={() => setSelectedVehicleId(v.id)}
-                        className={`p-4 rounded border cursor-pointer transition-all ${
-                          isSelected
-                            ? 'border-[#D96B3A] bg-orange-50/40 ring-1 ring-[#D96B3A]'
-                            : 'border-[#E4E1D9] bg-[#F5F4F0] hover:bg-[#ECEAE4]'
-                        }`}
+                        className={`p-4 rounded border cursor-pointer transition-all ${isSelected
+                          ? 'border-[#D96B3A] bg-orange-50/40 ring-1 ring-[#D96B3A]'
+                          : 'border-[#E4E1D9] bg-[#F5F4F0] hover:bg-[#ECEAE4]'
+                          }`}
                       >
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-sm text-[#242522]">
@@ -251,6 +321,132 @@ export default function CustomerBookingPage() {
                       </div>
                     );
                   })}
+                </div>
+              )}
+
+              {/* Quick Add Vehicle Modal */}
+              {showAddVehicleModal && (
+                <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+                  <div className="bg-[#FFFFFF] border border-[#E4E1D9] rounded-lg max-w-md w-full p-6 space-y-4 shadow-xl text-xs">
+                    <div className="flex items-center justify-between pb-3 border-b border-[#E4E1D9]">
+                      <h3 className="text-base font-bold text-[#242522] font-heading flex items-center gap-2">
+                        <Car size={16} className="text-[#D96B3A]" />
+                        <span>Daftarkan Mobil Baru</span>
+                      </h3>
+                      <button
+                        type="button"
+                        onClick={() => setShowAddVehicleModal(false)}
+                        className="text-[#777871] hover:text-[#242522]"
+                      >
+                        <X size={18} />
+                      </button>
+                    </div>
+
+                    {vehicleError && (
+                      <div className="bg-rose-50 border border-rose-200 text-rose-700 text-xs px-3 py-2 rounded flex items-center gap-2">
+                        <AlertCircle size={15} />
+                        <span>{vehicleError}</span>
+                      </div>
+                    )}
+
+                    <form onSubmit={handleQuickAddVehicle} className="space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block font-semibold text-[#242522] mb-1">Merek</label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="Contoh: Toyota"
+                            value={newVehicleData.brand}
+                            onChange={e => setNewVehicleData({ ...newVehicleData, brand: e.target.value })}
+                            className="w-full px-3 py-2 bg-[#F5F4F0] border border-[#E4E1D9] rounded text-[#242522] focus:outline-none focus:border-[#D96B3A]"
+                          />
+                        </div>
+                        <div>
+                          <label className="block font-semibold text-[#242522] mb-1">Model / Varian</label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="Contoh: Yaris GR"
+                            value={newVehicleData.model}
+                            onChange={e => setNewVehicleData({ ...newVehicleData, model: e.target.value })}
+                            className="w-full px-3 py-2 bg-[#F5F4F0] border border-[#E4E1D9] rounded text-[#242522] focus:outline-none focus:border-[#D96B3A]"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block font-semibold text-[#242522] mb-1">Tahun Perakitan</label>
+                          <input
+                            type="number"
+                            required
+                            min={1990}
+                            max={2030}
+                            value={newVehicleData.year}
+                            onChange={e => setNewVehicleData({ ...newVehicleData, year: Number(e.target.value) })}
+                            className="w-full px-3 py-2 bg-[#F5F4F0] border border-[#E4E1D9] rounded text-[#242522] focus:outline-none focus:border-[#D96B3A]"
+                          />
+                        </div>
+                        <div>
+                          <label className="block font-semibold text-[#242522] mb-1">Nomor Plat Polisi</label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="B 1234 XYZ"
+                            value={newVehicleData.licensePlate}
+                            onChange={e => setNewVehicleData({ ...newVehicleData, licensePlate: e.target.value })}
+                            className="w-full px-3 py-2 bg-[#F5F4F0] border border-[#E4E1D9] rounded font-mono uppercase text-[#242522] focus:outline-none focus:border-[#D96B3A]"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block font-semibold text-[#242522] mb-1">Transmisi</label>
+                          <select
+                            value={newVehicleData.transmission}
+                            onChange={e => setNewVehicleData({ ...newVehicleData, transmission: e.target.value as any })}
+                            className="w-full px-3 py-2 bg-[#F5F4F0] border border-[#E4E1D9] rounded text-[#242522] focus:outline-none focus:border-[#D96B3A]"
+                          >
+                            <option value="automatic">Automatic (AT/CVT)</option>
+                            <option value="manual">Manual (MT)</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block font-semibold text-[#242522] mb-1">Bahan Bakar</label>
+                          <select
+                            value={newVehicleData.fuelType}
+                            onChange={e => setNewVehicleData({ ...newVehicleData, fuelType: e.target.value as any })}
+                            className="w-full px-3 py-2 bg-[#F5F4F0] border border-[#E4E1D9] rounded text-[#242522] focus:outline-none focus:border-[#D96B3A]"
+                          >
+                            <option value="petrol">Bensin (Petrol)</option>
+                            <option value="diesel">Diesel</option>
+                            <option value="hybrid">Hybrid</option>
+                            <option value="electric">Electric (EV)</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="pt-3 flex justify-end gap-2 border-t border-[#E4E1D9]">
+                        <button
+                          type="button"
+                          onClick={() => setShowAddVehicleModal(false)}
+                          className="px-4 py-2 text-[#777871] hover:text-[#242522]"
+                        >
+                          Batal
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={addingVehicle}
+                          className="bg-[#D96B3A] hover:bg-[#BF582D] text-white font-semibold px-4 py-2 rounded transition-colors inline-flex items-center gap-1.5 disabled:opacity-50"
+                        >
+                          {addingVehicle && <Loader2 size={13} className="animate-spin" />}
+                          <span>{addingVehicle ? 'Menyimpan...' : 'Simpan & Pilih Mobil'}</span>
+                        </button>
+                      </div>
+                    </form>
+                  </div>
                 </div>
               )}
             </div>
@@ -274,16 +470,15 @@ export default function CustomerBookingPage() {
                     <div
                       key={s.id}
                       onClick={() => toggleService(s.id)}
-                      className={`p-4 rounded border cursor-pointer transition-all flex items-start gap-3 ${
-                        isChecked
-                          ? 'border-[#D96B3A] bg-orange-50/40 ring-1 ring-[#D96B3A]'
-                          : 'border-[#E4E1D9] bg-[#F5F4F0] hover:bg-[#ECEAE4]'
-                      }`}
+                      className={`p-4 rounded border cursor-pointer transition-all flex items-start gap-3 ${isChecked
+                        ? 'border-[#D96B3A] bg-orange-50/40 ring-1 ring-[#D96B3A]'
+                        : 'border-[#E4E1D9] bg-[#F5F4F0] hover:bg-[#ECEAE4]'
+                        }`}
                     >
                       <input
                         type="checkbox"
                         checked={isChecked}
-                        onChange={() => {}}
+                        onChange={() => { }}
                         className="mt-1 accent-[#D96B3A]"
                       />
                       <div className="flex-1">
@@ -360,11 +555,10 @@ export default function CustomerBookingPage() {
                     <div
                       key={i}
                       onClick={() => setScheduledTimeSlot(slot)}
-                      className={`p-4 rounded border text-center cursor-pointer transition-all ${
-                        isSelected
-                          ? 'border-[#D96B3A] bg-[#242522] text-white'
-                          : 'border-[#E4E1D9] bg-[#F5F4F0] hover:bg-[#ECEAE4] text-[#242522]'
-                      }`}
+                      className={`p-4 rounded border text-center cursor-pointer transition-all ${isSelected
+                        ? 'border-[#D96B3A] bg-[#242522] text-white'
+                        : 'border-[#E4E1D9] bg-[#F5F4F0] hover:bg-[#ECEAE4] text-[#242522]'
+                        }`}
                     >
                       <div className="font-bold text-sm font-heading">{slot} WIB</div>
                       <div className={`text-[10px] mt-1 ${isSelected ? 'text-amber-300' : 'text-emerald-700'}`}>

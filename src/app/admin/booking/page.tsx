@@ -10,9 +10,11 @@ export default function AdminBookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const loadBookings = () => {
-    api.bookings.getAll().then(setBookings);
+    api.bookings.getAll().then(setBookings).catch(() => {});
   };
 
   useEffect(() => {
@@ -20,8 +22,15 @@ export default function AdminBookingsPage() {
   }, []);
 
   const handleUpdateStatus = async (id: string, status: Booking['status']) => {
-    await api.bookings.updateStatus(id, status);
-    loadBookings();
+    setErrorMsg(null);
+    try {
+      await api.bookings.updateStatus(id, status);
+      setSuccessMsg(`Status booking berhasil diubah ke '${status}'.`);
+      setTimeout(() => setSuccessMsg(null), 3500);
+      loadBookings();
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Gagal mengubah status booking');
+    }
   };
 
   const filtered = bookings.filter(b => {
@@ -44,6 +53,20 @@ export default function AdminBookingsPage() {
             Superadmin memiliki otoritas penuh untuk meninjau, mengubah status, atau membatalkan reservasi pelanggan.
           </p>
         </div>
+
+        {successMsg && (
+          <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs px-4 py-3 rounded flex items-center gap-2">
+            <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+            <span>{successMsg}</span>
+          </div>
+        )}
+
+        {errorMsg && (
+          <div className="bg-rose-50 border border-rose-200 text-rose-800 text-xs px-4 py-3 rounded flex items-center gap-2">
+            <AlertCircle size={16} className="text-rose-600 shrink-0" />
+            <span>{errorMsg}</span>
+          </div>
+        )}
 
         {/* Filter bar */}
         <div className="bg-[#FFFFFF] p-4 rounded border border-[#E4E1D9] flex flex-col sm:flex-row items-center justify-between gap-4">

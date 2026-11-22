@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { api } from '@/services';
 import { Order } from '@/types';
-import { ShoppingBag, CheckCircle2, Clock } from 'lucide-react';
+import { ShoppingBag, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 
 const ORDER_STATUSES: Order['status'][] = [
   'pending',
@@ -18,6 +18,8 @@ const ORDER_STATUSES: Order['status'][] = [
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const loadOrders = () => {
     setLoading(true);
@@ -31,11 +33,14 @@ export default function AdminOrdersPage() {
   }, []);
 
   const handleStatusChange = async (id: string, newStatus: Order['status']) => {
+    setErrorMsg(null);
     try {
       await api.orders.updateStatus(id, newStatus);
+      setSuccessMsg(`Status pesanan berhasil diubah menjadi ${newStatus.replace('_', ' ')}.`);
+      setTimeout(() => setSuccessMsg(null), 3500);
       loadOrders();
     } catch (err: any) {
-      alert(err.message || 'Gagal memperbarui status pesanan');
+      setErrorMsg(err.message || 'Gagal memperbarui status pesanan');
     }
   };
 
@@ -50,6 +55,20 @@ export default function AdminOrdersPage() {
             Monitoring pesanan retail pelanggan, penyiapan paket di workshop, dan pengiriman kurir.
           </p>
         </div>
+
+        {successMsg && (
+          <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs px-4 py-3 rounded flex items-center gap-2">
+            <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+            <span>{successMsg}</span>
+          </div>
+        )}
+
+        {errorMsg && (
+          <div className="bg-rose-50 border border-rose-200 text-rose-800 text-xs px-4 py-3 rounded flex items-center gap-2">
+            <AlertCircle size={16} className="text-rose-600 shrink-0" />
+            <span>{errorMsg}</span>
+          </div>
+        )}
 
         <div className="bg-[#FFFFFF] border border-[#E4E1D9] rounded overflow-hidden">
           <table className="w-full text-left text-xs">

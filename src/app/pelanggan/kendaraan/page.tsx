@@ -2,14 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import { CustomerLayout } from '@/components/layout/CustomerLayout';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { api } from '@/services';
 import { Vehicle } from '@/types';
-import { Car, Plus, Trash2, Edit2, Check, X, Shield } from 'lucide-react';
+import { Car, Plus, Trash2, Edit2, Check, X, Shield, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export default function CustomerVehiclesPage() {
+  const { user } = useAuth();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [loadingVehicles, setLoadingVehicles] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     brand: '',
@@ -21,8 +27,16 @@ export default function CustomerVehiclesPage() {
     notes: '',
   });
 
-  const loadVehicles = () => {
-    api.vehicles.getAll().then(setVehicles);
+  const loadVehicles = async () => {
+    setLoadingVehicles(true);
+    try {
+      const data = await api.vehicles.getAll();
+      setVehicles(Array.isArray(data) ? data : []);
+    } catch (err: any) {
+      console.error('Failed to load vehicles:', err);
+    } finally {
+      setLoadingVehicles(false);
+    }
   };
 
   useEffect(() => {
@@ -31,6 +45,7 @@ export default function CustomerVehiclesPage() {
 
   const handleOpenAdd = () => {
     setEditingId(null);
+    setErrorMsg(null);
     setFormData({
       brand: '',
       model: '',
@@ -45,6 +60,7 @@ export default function CustomerVehiclesPage() {
 
   const handleOpenEdit = (v: Vehicle) => {
     setEditingId(v.id);
+    setErrorMsg(null);
     setFormData({
       brand: v.brand,
       model: v.model,
@@ -59,22 +75,54 @@ export default function CustomerVehiclesPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Apakah Anda yakin ingin menghapus data kendaraan ini?')) return;
-    await api.vehicles.delete(id);
-    loadVehicles();
+    setErrorMsg(null);
+    try {
+      await api.vehicles.delete(id);
+      setSuccessMsg('Kendaraan berhasil dihapus.');
+      setTimeout(() => setSuccessMsg(null), 3500);
+      await loadVehicles();
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Gagal menghapus kendaraan');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingId) {
-      await api.vehicles.update(editingId, formData);
-    } else {
-      await api.vehicles.create({
-        userId: 'usr_mock_user',
-        ...formData,
-      });
+    setErrorMsg(null);
+
+    if (!formData.brand.trim() || !formData.model.trim() || !formData.licensePlate.trim()) {
+      setErrorMsg('Merek, model, dan nomor plat polisi wajib diisi.');
+      return;
     }
-    setShowModal(false);
-    loadVehicles();
+
+    setSubmitting(true);
+    try {
+      if (editingId) {
+        await api.vehicles.update(editingId, {
+          ...formData,
+          brand: formData.brand.trim(),
+          model: formData.model.trim(),
+          licensePlate: formData.licensePlate.toUpperCase().trim(),
+        });
+        setSuccessMsg('Data kendaraan berhasil diperbarui!');
+      } else {
+        await api.vehicles.create({
+          userId: user?.id || '',
+          ...formData,
+          brand: formData.brand.trim(),
+          model: formData.model.trim(),
+          licensePlate: formData.licensePlate.toUpperCase().trim(),
+        });
+        setSuccessMsg('Kendaraan baru berhasil didaftarkan!');
+      }
+      setShowModal(false);
+      setTimeout(() => setSuccessMsg(null), 4000);
+      await loadVehicles();
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Gagal menyimpan kendaraan. Silakan coba lagi.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -98,78 +146,111 @@ export default function CustomerVehiclesPage() {
           </button>
         </div>
 
+        {successMsg && (
+          <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs px-4 py-3 rounded flex items-center gap-2">
+            <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+            <span className="font-medium">{successMsg}</span>
+          </div>
+        )}
+
+        {errorMsg && !showModal && (
+          <div className="bg-rose-50 border border-rose-200 text-rose-700 text-xs px-4 py-3 rounded flex items-center gap-2">
+            <AlertCircle size={16} className="text-rose-600 shrink-0" />
+            <span className="font-medium">{errorMsg}</span>
+          </div>
+        )}
+
         {/* Vehicle Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {vehicles.map(v => (
-            <div
-              key={v.id}
-              className="bg-[#FFFFFF] border border-[#E4E1D9] rounded p-6 flex flex-col justify-between space-y-4 hover:shadow-sm transition-shadow"
+        {vehicles.length === 0 ? (
+          <div className="bg-[#FFFFFF] border border-[#E4E1D9] rounded p-12 text-center space-y-3">
+            <Car size={36} className="text-[#777871] mx-auto" />
+            <h3 className="text-base font-bold text-[#242522] font-heading">
+              Belum Ada Kendaraan Terdaftar
+            </h3>
+            <p className="text-xs text-[#777871] max-w-sm mx-auto">
+              Daftarkan kendaraan Anda untuk mempermudah pemilihan mobil saat reservasi jadwal servis di workshop MELTUNE AUTO.
+            </p>
+            <button
+              onClick={handleOpenAdd}
+              className="mt-2 bg-[#D96B3A] hover:bg-[#BF582D] text-white text-xs font-semibold px-4 py-2 rounded transition-colors inline-flex items-center gap-1.5"
             >
-              <div>
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded bg-[#ECEAE4] text-[#D96B3A] flex items-center justify-center">
-                      <Car size={20} />
+              <Plus size={14} />
+              <span>Tambah Mobil Pertama Anda</span>
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {vehicles.map(v => (
+              <div
+                key={v.id}
+                className="bg-[#FFFFFF] border border-[#E4E1D9] rounded p-6 flex flex-col justify-between space-y-4 hover:shadow-sm transition-shadow"
+              >
+                <div>
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-10 h-10 rounded bg-[#ECEAE4] text-[#D96B3A] flex items-center justify-center">
+                        <Car size={20} />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-bold text-[#242522] font-heading">
+                          {v.brand} {v.model}
+                        </h3>
+                        <div className="text-xs text-[#777871]">Tahun Produksi: {v.year}</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => handleOpenEdit(v)}
+                        className="p-1.5 text-[#777871] hover:text-[#242522] hover:bg-[#ECEAE4] rounded"
+                        title="Edit Kendaraan"
+                      >
+                        <Edit2 size={14} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(v.id)}
+                        className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded"
+                        title="Hapus Kendaraan"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-4 border-t border-[#E4E1D9] grid grid-cols-3 gap-2 text-xs">
+                    <div>
+                      <span className="text-[10px] text-[#777871] uppercase">Nomor Plat</span>
+                      <div className="font-mono font-bold text-[#242522] mt-0.5">{v.licensePlate}</div>
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-[#242522] font-heading">
-                        {v.brand} {v.model}
-                      </h3>
-                      <div className="text-xs text-[#777871]">Tahun Produksi: {v.year}</div>
+                      <span className="text-[10px] text-[#777871] uppercase">Transmisi</span>
+                      <div className="capitalize font-medium text-[#242522] mt-0.5">{v.transmission}</div>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-[#777871] uppercase">Bahan Bakar</span>
+                      <div className="capitalize font-medium text-[#242522] mt-0.5">{v.fuelType}</div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => handleOpenEdit(v)}
-                      className="p-1.5 text-[#777871] hover:text-[#242522] hover:bg-[#ECEAE4] rounded"
-                      title="Edit Kendaraan"
-                    >
-                      <Edit2 size={14} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(v.id)}
-                      className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded"
-                      title="Hapus Kendaraan"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
+
+                  {v.notes && (
+                    <div className="mt-3 p-2.5 bg-[#F5F4F0] rounded text-xs text-[#777871]">
+                      <span className="font-semibold text-[#242522]">Catatan Servis: </span>
+                      {v.notes}
+                    </div>
+                  )}
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-[#E4E1D9] grid grid-cols-3 gap-2 text-xs">
-                  <div>
-                    <span className="text-[10px] text-[#777871] uppercase">Nomor Plat</span>
-                    <div className="font-mono font-bold text-[#242522] mt-0.5">{v.licensePlate}</div>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-[#777871] uppercase">Transmisi</span>
-                    <div className="capitalize font-medium text-[#242522] mt-0.5">{v.transmission}</div>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-[#777871] uppercase">Bahan Bakar</span>
-                    <div className="capitalize font-medium text-[#242522] mt-0.5">{v.fuelType}</div>
-                  </div>
+                <div className="pt-2">
+                  <a
+                    href={`/pelanggan/booking?vehicle=${v.id}`}
+                    className="w-full bg-[#242522] hover:bg-[#383a35] text-white text-xs font-semibold py-2 rounded text-center block transition-colors"
+                  >
+                    Booking Servis untuk Mobil Ini
+                  </a>
                 </div>
-
-                {v.notes && (
-                  <div className="mt-3 p-2.5 bg-[#F5F4F0] rounded text-xs text-[#777871]">
-                    <span className="font-semibold text-[#242522]">Catatan Servis: </span>
-                    {v.notes}
-                  </div>
-                )}
               </div>
-
-              <div className="pt-2">
-                <a
-                  href={`/pelanggan/booking?vehicle=${v.id}`}
-                  className="w-full bg-[#242522] hover:bg-[#383a35] text-white text-xs font-semibold py-2 rounded text-center block transition-colors"
-                >
-                  Booking Servis untuk Mobil Ini
-                </a>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Modal Form Add/Edit */}
         {showModal && (
@@ -188,6 +269,13 @@ export default function CustomerVehiclesPage() {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-3">
+                {errorMsg && (
+                  <div className="bg-red-50 border border-red-200 text-red-800 text-xs px-3 py-2 rounded flex items-center gap-2">
+                    <AlertCircle size={15} className="text-red-600 shrink-0" />
+                    <span>{errorMsg}</span>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-semibold text-[#242522] mb-1">Merek</label>
@@ -288,10 +376,21 @@ export default function CustomerVehiclesPage() {
                   </button>
                   <button
                     type="submit"
-                    className="bg-[#D96B3A] hover:bg-[#BF582D] text-white text-xs font-semibold px-4 py-2 rounded transition-colors inline-flex items-center gap-1.5"
+                    disabled={submitting}
+                    className="bg-[#D96B3A] hover:bg-[#BF582D] text-white text-xs font-semibold px-4 py-2 rounded transition-colors inline-flex items-center gap-1.5 disabled:opacity-50"
                   >
-                    <Check size={14} />
-                    <span>{editingId ? 'Simpan Perubahan' : 'Daftarkan Kendaraan'}</span>
+                    {submitting ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      <Check size={14} />
+                    )}
+                    <span>
+                      {submitting
+                        ? 'Menyimpan...'
+                        : editingId
+                        ? 'Simpan Perubahan'
+                        : 'Daftarkan Kendaraan'}
+                    </span>
                   </button>
                 </div>
               </form>

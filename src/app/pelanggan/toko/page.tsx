@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { CustomerLayout } from '@/components/layout/CustomerLayout';
 import { api } from '@/services';
 import { CartItem, Order } from '@/types';
-import { ShoppingBag, Trash2, ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { ShoppingBag, Trash2, ArrowRight, CheckCircle2, ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';
 
 export default function CustomerShopCartPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -13,10 +13,12 @@ export default function CustomerShopCartPage() {
   const [paymentMethod, setPaymentMethod] = useState<'qris' | 'bank_transfer' | 'workshop_cash'>('qris');
   const [address, setAddress] = useState('');
   const [checkoutSuccess, setCheckoutSuccess] = useState<Order | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const loadCartAndOrders = () => {
     setCart(api.cart.get());
-    api.orders.getAll().then(setOrders);
+    api.orders.getAll().then(setOrders).catch(() => {});
   };
 
   useEffect(() => {
@@ -34,19 +36,33 @@ export default function CustomerShopCartPage() {
 
   const handleCheckout = async () => {
     if (cart.length === 0) return;
-    const newOrder = await api.orders.create({
-      items: cart.map(c => ({
-        productId: c.product.id,
-        productName: c.product.name,
-        price: c.product.price,
-        quantity: c.quantity,
-      })),
-      shippingMethod,
-      shippingAddress: shippingMethod === 'express_courier' ? address : undefined,
-      paymentMethod,
-    });
-    setCheckoutSuccess(newOrder);
-    loadCartAndOrders();
+    if (shippingMethod === 'express_courier' && !address.trim()) {
+      setErrorMsg('Alamat pengiriman lengkap wajib diisi untuk opsi Kurir Ekspres.');
+      return;
+    }
+
+    setSubmitting(true);
+    setErrorMsg(null);
+    try {
+      const newOrder = await api.orders.create({
+        items: cart.map(c => ({
+          productId: c.product.id,
+          productName: c.product.name,
+          price: c.product.price,
+          quantity: c.quantity,
+        })),
+        shippingMethod,
+        shippingAddress: shippingMethod === 'express_courier' ? address.trim() : undefined,
+        paymentMethod,
+      });
+      setCheckoutSuccess(newOrder);
+      setCart([]);
+      loadCartAndOrders();
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Gagal memproses pesanan. Silakan coba lagi.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -210,12 +226,20 @@ export default function CustomerShopCartPage() {
                 </div>
               </div>
 
+              {errorMsg && (
+                <div className="bg-rose-50 border border-rose-200 text-rose-700 text-xs px-3 py-2 rounded flex items-center gap-2">
+                  <AlertCircle size={15} className="shrink-0" />
+                  <span>{errorMsg}</span>
+                </div>
+              )}
+
               <button
-                disabled={cart.length === 0}
+                disabled={cart.length === 0 || submitting}
                 onClick={handleCheckout}
-                className="w-full bg-[#D96B3A] hover:bg-[#BF582D] text-white text-xs font-semibold py-3 rounded transition-colors disabled:opacity-40"
+                className="w-full bg-[#D96B3A] hover:bg-[#BF582D] text-white text-xs font-semibold py-3 rounded transition-colors disabled:opacity-40 inline-flex items-center justify-center gap-2"
               >
-                Proses Checkout Sekarang
+                {submitting && <Loader2 size={15} className="animate-spin" />}
+                <span>{submitting ? 'Memproses Pesanan...' : 'Proses Checkout Sekarang'}</span>
               </button>
             </div>
           </div>
