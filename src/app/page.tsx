@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { useAuth } from '@/components/auth/AuthProvider';
 import {
   Wrench,
   Gauge,
@@ -15,6 +16,10 @@ import {
 } from 'lucide-react';
 
 export default function HomePage() {
+  const { user } = useAuth();
+  const bookingLink = user ? '/pelanggan/booking' : '/auth/login?redirect=/pelanggan/booking';
+  const loyaltyLink = user ? '/pelanggan/loyalitas' : '/auth/login?redirect=/pelanggan/loyalitas';
+
   return (
     <>
       <Header />
@@ -24,9 +29,6 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
               <div className="lg:col-span-7 space-y-6">
-                <span className="text-xs uppercase tracking-widest text-[#D96B3A] font-semibold">
-                  MELTUNE AUTO Workshop Tangerang Selatan
-                </span>
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-[#242522] leading-[1.08] tracking-tight">
                   Perawatan kendaraan yang tepat, presisi tanpa kompromi.
                 </h1>
@@ -35,7 +37,7 @@ export default function HomePage() {
                 </p>
                 <div className="pt-2 flex flex-wrap items-center gap-4">
                   <Link
-                    href="/pelanggan/booking"
+                    href={bookingLink}
                     className="bg-[#D96B3A] hover:bg-[#BF582D] text-white px-6 py-3.5 rounded font-medium transition-colors inline-flex items-center gap-2 text-base shadow-sm"
                   >
                     <span>Reservasi Servis</span>
@@ -68,7 +70,7 @@ export default function HomePage() {
               <div className="lg:col-span-5 relative">
                 <div className="aspect-4/3 rounded-lg overflow-hidden border border-[#E4E1D9] shadow-md bg-[#242522]">
                   <img
-                    src="https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&q=80&w=1200"
+                    src="https://images.unsplash.com/photo-1606577924006-27d39b132ae2?q=80&w=688&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
                     alt="MELTUNE AUTO Workshop Workbay"
                     className="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-700"
                   />
@@ -155,7 +157,7 @@ export default function HomePage() {
                   price: 'Rp 650.000',
                   duration: '90 Menit',
                   desc: 'Pembersihan throttle body, pembacaan live parameter ECU, dan pengecekan emisi.',
-                  img: 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&q=80&w=800',
+                  img: 'https://images.unsplash.com/photo-1646807284302-170c9505b2e7?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D',
                 },
                 {
                   title: 'Full Synthetic Fluid & Filter',
@@ -163,7 +165,7 @@ export default function HomePage() {
                   price: 'Rp 850.000',
                   duration: '45 Menit',
                   desc: 'Oli full synthetic ester base, filter OEM baru, serta 24 poin cek keselamatan.',
-                  img: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&q=80&w=800',
+                  img: 'https://images.unsplash.com/photo-1615906655593-ad0386982a0f?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D',
                 },
                 {
                   title: 'Precision Brake Overhaul',
@@ -171,7 +173,7 @@ export default function HomePage() {
                   price: 'Rp 550.000',
                   duration: '75 Menit',
                   desc: 'Flushing minyak rem vakum, pembersihan kaliper, dan instalasi kampas rem OEM.',
-                  img: 'https://images.unsplash.com/photo-1600790142055-619df03207e6?auto=format&fit=crop&q=80&w=800',
+                  img: 'https://plus.unsplash.com/premium_photo-1661373022510-dfd61512e080?q=80&w=1231&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D',
                 },
               ].map((srv, i) => (
                 <div
@@ -208,7 +210,7 @@ export default function HomePage() {
                           <span>{srv.duration}</span>
                         </div>
                         <Link
-                          href="/pelanggan/booking"
+                          href={bookingLink}
                           className="text-xs font-semibold text-[#D96B3A] hover:text-[#BF582D] mt-0.5 inline-block"
                         >
                           Booking Slot &rarr;
@@ -260,7 +262,7 @@ export default function HomePage() {
 
             <div className="mt-8 text-center">
               <Link
-                href="/pelanggan/booking"
+                href={bookingLink}
                 className="bg-[#D96B3A] hover:bg-[#BF582D] text-white text-sm font-semibold px-6 py-3 rounded inline-flex items-center gap-2"
               >
                 <CalendarCheck size={16} />
@@ -288,7 +290,7 @@ export default function HomePage() {
               </div>
               <div className="lg:col-span-4 flex justify-start lg:justify-end">
                 <Link
-                  href="/pelanggan/loyalitas"
+                  href={loyaltyLink}
                   className="bg-[#D96B3A] hover:bg-[#BF582D] text-white font-semibold text-sm px-6 py-3.5 rounded transition-colors inline-flex items-center gap-2"
                 >
                   <span>Buka Dashboard Loyalitas</span>
@@ -354,7 +356,7 @@ export default function HomePage() {
             </p>
             <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
               <Link
-                href="/pelanggan/booking"
+                href={bookingLink}
                 className="bg-[#D96B3A] hover:bg-[#BF582D] text-white px-8 py-3.5 rounded font-semibold text-sm transition-colors"
               >
                 Reservasi Jadwal Servis

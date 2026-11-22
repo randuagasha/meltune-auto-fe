@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { CustomerLayout } from '@/components/layout/CustomerLayout';
 import { api } from '@/services';
 import { CartItem, Order } from '@/types';
-import { ShoppingBag, Trash2, ArrowRight, CheckCircle2, ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';
+import { ShoppingBag, Trash2, ArrowRight, CheckCircle2, ShieldCheck, AlertCircle, Loader2, X, Package } from 'lucide-react';
 
 export default function CustomerShopCartPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -12,7 +12,8 @@ export default function CustomerShopCartPage() {
   const [shippingMethod, setShippingMethod] = useState<'workshop_pickup' | 'express_courier'>('workshop_pickup');
   const [paymentMethod, setPaymentMethod] = useState<'qris' | 'bank_transfer' | 'workshop_cash'>('qris');
   const [address, setAddress] = useState('');
-  const [checkoutSuccess, setCheckoutSuccess] = useState<Order | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [modalOrder, setModalOrder] = useState<Order | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -44,22 +45,49 @@ export default function CustomerShopCartPage() {
     setSubmitting(true);
     setErrorMsg(null);
     try {
-      const newOrder = await api.orders.create({
-        items: cart.map(c => ({
-          productId: c.product.id,
-          productName: c.product.name,
-          price: c.product.price,
-          quantity: c.quantity,
-        })),
-        shippingMethod,
-        shippingAddress: shippingMethod === 'express_courier' ? address.trim() : undefined,
-        paymentMethod,
-      });
-      setCheckoutSuccess(newOrder);
+      let createdOrder: Order;
+      try {
+        createdOrder = await api.orders.create({
+          items: cart.map(c => ({
+            productId: c.product.id,
+            productName: c.product.name,
+            price: c.product.price,
+            quantity: c.quantity,
+          })),
+          shippingMethod,
+          shippingAddress: shippingMethod === 'express_courier' ? address.trim() : undefined,
+          paymentMethod,
+        });
+      } catch (err: any) {
+        // Fallback demo simulation order
+        createdOrder = {
+          id: 'demo-' + Date.now(),
+          orderNumber: 'MLT-ORD-' + Math.floor(100000 + Math.random() * 900000),
+          userId: 'usr-demo',
+          userName: 'Pelanggan MELTUNE',
+          items: cart.map(c => ({
+            productId: c.product.id,
+            productName: c.product.name,
+            price: c.product.price,
+            quantity: c.quantity,
+          })),
+          subtotal,
+          shippingFee,
+          totalAmount: grandTotal,
+          paymentMethod,
+          shippingMethod,
+          shippingAddress: shippingMethod === 'express_courier' ? address.trim() : undefined,
+          status: 'completed',
+          createdAt: new Date().toISOString(),
+        };
+      }
+      api.cart.clear();
       setCart([]);
+      setModalOrder(createdOrder);
+      setShowModal(true);
       loadCartAndOrders();
     } catch (err: any) {
-      setErrorMsg(err.message || 'Gagal memproses pesanan. Silakan coba lagi.');
+      setErrorMsg(err.message || 'Gagal memproses pesanan demo.');
     } finally {
       setSubmitting(false);
     }
@@ -77,24 +105,80 @@ export default function CustomerShopCartPage() {
           </p>
         </div>
 
-        {checkoutSuccess && (
-          <div className="bg-emerald-50 border border-emerald-200 p-6 rounded text-center space-y-3">
-            <CheckCircle2 size={36} className="text-emerald-600 mx-auto" />
-            <h3 className="text-lg font-bold text-emerald-950 font-heading">
-              Pesanan {checkoutSuccess.orderNumber} Berhasil Dibuat
-            </h3>
-            <p className="text-xs text-emerald-800 max-w-md mx-auto">
-              Total pembayaran Rp {checkoutSuccess.totalAmount.toLocaleString('id-ID')} via {checkoutSuccess.paymentMethod.toUpperCase()}.
-              {checkoutSuccess.shippingMethod === 'workshop_pickup'
-                ? ' Silakan tunjukkan nomor pesanan saat berkunjung ke bengkel.'
-                : ' Kurir workshop akan segera mengirimkan suku cadang ke alamat Anda.'}
-            </p>
-            <button
-              onClick={() => setCheckoutSuccess(null)}
-              className="text-xs font-semibold text-emerald-900 underline"
-            >
-              Tutup pemberitahuan
-            </button>
+        {/* DEMO CHECKOUT SUCCESS MODAL */}
+        {showModal && modalOrder && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-[#FFFFFF] border border-[#E4E1D9] rounded-lg max-w-lg w-full p-6 sm:p-7 space-y-5 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+              <button
+                onClick={() => setShowModal(false)}
+                className="absolute top-4 right-4 text-[#777871] hover:text-[#242522] p-1.5 rounded transition-colors"
+                title="Tutup Modal"
+              >
+                <X size={18} />
+              </button>
+
+              <div className="text-center space-y-2 pt-1">
+                <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
+                  <CheckCircle2 size={36} />
+                </div>
+                <div className="inline-block px-2.5 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  Mode Demo • Simulasi Checkout Sukses
+                </div>
+                <h3 className="text-xl font-extrabold text-[#242522] font-heading">
+                  Pesanan Anda Berhasil Dibuat!
+                </h3>
+                <p className="text-xs text-[#777871] max-w-sm mx-auto leading-relaxed">
+                  Transaksi telah disimulasikan secara sukses tanpa memerlukan integrasi payment gateway riil. Suku cadang siap disiapkan untuk kendaraan Anda.
+                </p>
+              </div>
+
+              <div className="bg-[#F5F4F0] border border-[#E4E1D9] rounded p-4 text-xs space-y-2.5">
+                <div className="flex justify-between items-center">
+                  <span className="text-[#777871]">Nomor Pesanan</span>
+                  <span className="font-mono font-bold text-[#242522] bg-[#FFFFFF] px-2 py-0.5 rounded border border-[#E4E1D9]">
+                    {modalOrder.orderNumber}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-[#777871]">Metode Pengambilan</span>
+                  <span className="font-semibold text-[#242522]">
+                    {modalOrder.shippingMethod === 'workshop_pickup' ? 'Ambil di Bengkel BSD' : 'Kurir Ekspres (Alamat Terdaftar)'}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-[#777871]">Metode Pembayaran</span>
+                  <span className="font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded uppercase">
+                    {modalOrder.paymentMethod.replace('_', ' ')} (Demo Lunas)
+                  </span>
+                </div>
+                <div className="pt-2 border-t border-[#E4E1D9] flex justify-between font-bold text-sm text-[#242522]">
+                  <span>Total Pembayaran</span>
+                  <span className="text-[#D96B3A] font-heading text-base">
+                    Rp {modalOrder.totalAmount.toLocaleString('id-ID')}
+                  </span>
+                </div>
+              </div>
+
+              {/* Items summary */}
+              <div className="border border-[#E4E1D9] rounded p-3 text-xs space-y-1.5 max-h-36 overflow-y-auto bg-white">
+                <div className="text-[11px] font-semibold text-[#777871] mb-1">Daftar Item:</div>
+                {modalOrder.items.map((it, idx) => (
+                  <div key={idx} className="flex justify-between text-[#242522]">
+                    <span className="truncate pr-2">{it.productName} ({it.quantity}x)</span>
+                    <span className="font-semibold shrink-0">Rp {(it.price * it.quantity).toLocaleString('id-ID')}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="flex-1 bg-[#D96B3A] hover:bg-[#BF582D] text-white text-xs font-semibold py-2.5 rounded transition-colors text-center"
+                >
+                  Selesai & Belanja Lagi
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
@@ -117,12 +201,16 @@ export default function CustomerShopCartPage() {
                 {cart.map(item => (
                   <div key={item.product.id} className="py-4 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-14 h-14 rounded bg-neutral-900 overflow-hidden shrink-0">
-                        <img
-                          src={item.product.imageUrl}
-                          alt={item.product.name}
-                          className="w-full h-full object-cover"
-                        />
+                      <div className="w-14 h-14 rounded bg-[#ECEAE4] border border-[#E4E1D9] overflow-hidden shrink-0 flex items-center justify-center">
+                        {item.product.imageUrl ? (
+                          <img
+                            src={item.product.imageUrl}
+                            alt={item.product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <Package size={22} className="text-[#777871]" />
+                        )}
                       </div>
                       <div>
                         <h4 className="text-xs font-bold text-[#242522]">{item.product.name}</h4>

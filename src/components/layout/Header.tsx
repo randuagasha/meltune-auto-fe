@@ -27,6 +27,9 @@ export function Header() {
     return '/pelanggan/dashboard';
   };
 
+  const cartLink = user ? '/pelanggan/toko' : '/auth/login?redirect=/pelanggan/toko';
+  const bookingLink = user ? '/pelanggan/booking' : '/auth/login?redirect=/pelanggan/booking';
+
   return (
     <header className="sticky top-0 z-40 bg-[#F5F4F0]/95 backdrop-blur-md border-b border-[#E4E1D9]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
@@ -53,9 +56,9 @@ export function Header() {
         {/* Action CTAs */}
         <div className="hidden md:flex items-center gap-4">
           <Link
-            href="/pelanggan/toko"
+            href={cartLink}
             className="p-2 text-[#242522] hover:text-[#D96B3A] transition-colors relative"
-            title="Keranjang"
+            title="Keranjang Suku Cadang"
           >
             <ShoppingBag size={20} />
           </Link>
@@ -68,7 +71,7 @@ export function Header() {
           </Link>
 
           <Link
-            href="/pelanggan/booking"
+            href={bookingLink}
             className="bg-[#D96B3A] hover:bg-[#BF582D] text-white text-sm font-medium px-4 py-2 rounded transition-colors inline-flex items-center gap-2"
           >
             <span>Reservasi Servis</span>
@@ -79,7 +82,7 @@ export function Header() {
         {/* Mobile menu toggle */}
         <div className="md:hidden flex items-center gap-2">
           <Link
-            href="/pelanggan/booking"
+            href={bookingLink}
             className="bg-[#D96B3A] text-white text-xs px-3 py-1.5 rounded"
           >
             Booking
@@ -109,6 +112,14 @@ export function Header() {
           ))}
           <div className="pt-3 border-t border-[#E4E1D9] flex flex-col gap-2">
             <Link
+              href={cartLink}
+              onClick={() => setMobileOpen(false)}
+              className="text-sm font-medium text-[#242522] py-2 flex items-center gap-2"
+            >
+              <ShoppingBag size={16} />
+              <span>Keranjang Suku Cadang</span>
+            </Link>
+            <Link
               href={getDashboardLink()}
               onClick={() => setMobileOpen(false)}
               className="text-sm font-medium text-[#242522] py-2"
@@ -116,7 +127,7 @@ export function Header() {
               {user ? `Portal ${user.role}` : 'Masuk Akun'}
             </Link>
             <Link
-              href="/pelanggan/booking"
+              href={bookingLink}
               onClick={() => setMobileOpen(false)}
               className="bg-[#D96B3A] text-white text-sm font-medium text-center py-2.5 rounded"
             >

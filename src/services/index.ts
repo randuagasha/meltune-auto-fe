@@ -186,19 +186,20 @@ export const api = {
 
   // Products
   products: {
-    getAll: async (params?: { category?: string; search?: string }): Promise<ProductItem[]> => {
+    getAll: async (params?: { category?: string; search?: string; all?: boolean }): Promise<ProductItem[]> => {
       const query = new URLSearchParams();
       if (params?.category && params.category !== 'all') query.set('category', params.category);
       if (params?.search) query.set('search', params.search);
+      if (params?.all) query.set('all', 'true');
       const qs = query.toString();
       return request<ProductItem[]>(`/products${qs ? `?${qs}` : ''}`);
     },
     getById: async (id: string): Promise<ProductItem> => {
       return request<ProductItem>(`/products/${id}`);
     },
-    save: async (prod: ProductItem): Promise<ProductItem> => {
-      const isExisting = prod.id && !prod.id.startsWith('temp_') && !prod.id.startsWith('prd_' + Date.now().toString().slice(0, 6));
-      if (isExisting) {
+    save: async (prod: Partial<ProductItem> & { id?: string }): Promise<ProductItem> => {
+      const isExisting = Boolean(prod.id && !prod.id.startsWith('temp_') && !prod.id.startsWith('new_') && !prod.id.startsWith('prd_'));
+      if (isExisting && prod.id) {
         return request<ProductItem>(`/products/${prod.id}`, {
           method: 'PUT',
           body: JSON.stringify(prod),
@@ -207,6 +208,12 @@ export const api = {
       return request<ProductItem>('/products', {
         method: 'POST',
         body: JSON.stringify(prod),
+      });
+    },
+    uploadImage: async (base64: string, fileName?: string): Promise<{ url: string }> => {
+      return request<{ url: string }>('/products/upload-image', {
+        method: 'POST',
+        body: JSON.stringify({ base64, fileName }),
       });
     },
     delete: async (id: string): Promise<boolean> => {

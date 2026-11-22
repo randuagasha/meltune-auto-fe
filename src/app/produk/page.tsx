@@ -2,13 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { api } from '@/services';
 import { ProductItem } from '@/types';
-import { Search, ShoppingBag, Check, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Search, ShoppingBag, Check, ShieldCheck, ArrowRight, Package } from 'lucide-react';
 
 export default function ProductsPage() {
+  const router = useRouter();
+  const { user } = useAuth();
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('all');
@@ -27,6 +31,10 @@ export default function ProductsPage() {
   ];
 
   const handleAddToCart = (product: ProductItem) => {
+    if (!user) {
+      router.push('/auth/login?redirect=/pelanggan/toko');
+      return;
+    }
     api.cart.add(product, 1);
     setAddedId(product.id);
     setTimeout(() => setAddedId(null), 1500);
@@ -58,7 +66,7 @@ export default function ProductsPage() {
               </p>
             </div>
             <Link
-              href="/pelanggan/toko"
+              href={user ? "/pelanggan/toko" : "/auth/login?redirect=/pelanggan/toko"}
               className="bg-[#242522] text-[#F5F4F0] px-4 py-2.5 rounded text-xs font-semibold inline-flex items-center gap-2 hover:bg-[#383a35] transition-colors"
             >
               <ShoppingBag size={14} />
@@ -104,12 +112,19 @@ export default function ProductsPage() {
                 className="bg-[#FFFFFF] border border-[#E4E1D9] rounded overflow-hidden flex flex-col justify-between group hover:shadow-md transition-shadow"
               >
                 <div>
-                  <div className="aspect-square overflow-hidden bg-neutral-900 relative">
-                    <img
-                      src={product.imageUrl}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
+                  <div className="aspect-square overflow-hidden bg-[#ECEAE4] border-b border-[#E4E1D9] relative flex items-center justify-center">
+                    {product.imageUrl ? (
+                      <img
+                        src={product.imageUrl}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center text-[#777871] p-4 text-center">
+                        <Package size={44} className="stroke-1 text-[#777871]/60 mb-1.5" />
+                        <span className="text-[11px] font-medium text-[#777871]">Foto Belum Diunggah</span>
+                      </div>
+                    )}
                     <div className="absolute top-3 right-3 bg-[#242522]/80 backdrop-blur text-white text-[10px] font-semibold px-2 py-0.5 rounded">
                       Stok: {product.stock} unit
                     </div>

@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { api } from '@/services';
 import { ServiceItem } from '@/types';
 import { Clock, CheckCircle2, ArrowRight } from 'lucide-react';
 
 export default function ServicesPage() {
+  const { user } = useAuth();
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
@@ -52,11 +54,10 @@ export default function ServicesPage() {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-4 py-2 text-xs font-semibold rounded transition-colors ${
-                  selectedCategory === cat.id
-                    ? 'bg-[#242522] text-[#F5F4F0]'
-                    : 'bg-[#ECEAE4] text-[#242522] hover:bg-[#E4E1D9]'
-                }`}
+                className={`px-4 py-2 text-xs font-semibold rounded transition-colors ${selectedCategory === cat.id
+                  ? 'bg-[#242522] text-[#F5F4F0]'
+                  : 'bg-[#ECEAE4] text-[#242522] hover:bg-[#E4E1D9]'
+                  }`}
               >
                 {cat.label}
               </button>
@@ -73,7 +74,7 @@ export default function ServicesPage() {
                 <div>
                   <div className="aspect-16/10 overflow-hidden bg-neutral-900">
                     <img
-                      src={srv.imageUrl || 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&q=80&w=800'}
+                      src={srv.imageUrl || 'https://images.unsplash.com/photo-1771340012378-3c86cb649193?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D'}
                       alt={srv.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
@@ -106,7 +107,7 @@ export default function ServicesPage() {
                       </div>
                     </div>
                     <Link
-                      href={`/pelanggan/booking?service=${srv.id}`}
+                      href={user ? `/pelanggan/booking?service=${srv.id}` : `/auth/login?redirect=${encodeURIComponent('/pelanggan/booking?service=' + srv.id)}`}
                       className="bg-[#D96B3A] hover:bg-[#BF582D] text-white text-xs font-semibold px-4 py-2.5 rounded transition-colors inline-flex items-center gap-1.5"
                     >
                       <span>Booking Layanan</span>

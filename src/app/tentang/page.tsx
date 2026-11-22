@@ -1,9 +1,15 @@
+'use client';
+
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import Link from 'next/link';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { Target, Compass, Award, Shield } from 'lucide-react';
 
 export default function AboutPage() {
+  const { user } = useAuth();
+  const bookingLink = user ? '/pelanggan/booking' : '/auth/login?redirect=/pelanggan/booking';
+
   return (
     <>
       <Header />
@@ -95,7 +101,7 @@ export default function AboutPage() {
               </p>
             </div>
             <Link
-              href="/pelanggan/booking"
+              href={bookingLink}
               className="bg-[#D96B3A] hover:bg-[#BF582D] text-white text-xs font-semibold px-6 py-3 rounded transition-colors shrink-0"
             >
               Reservasi Jadwal Servis
