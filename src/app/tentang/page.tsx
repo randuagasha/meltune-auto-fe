@@ -61,7 +61,7 @@ export default function AboutPage() {
                 Satu Workshop Fisik Terpusat di BSD, Tangerang Selatan
               </h2>
               <p className="text-sm text-[#777871] leading-relaxed">
-                MELTUNE AUTO bukan platform marketplace perantara bengkel abal-abal. Kami beroperasi secara nyata dengan workshop tunggal seluas 850 m² yang dilengkapi empat lift workbay hidrolik berkekuatan 4 ton, peralatan laser wheel aligner digital Corghi, dan scanner diagnostik OEM level pabrikan.
+                MELTUNE AUTO bukan platform marketplace perantara bengkel abal-abal. Kami beroperasi secara nyata dengan workshop tunggal seluas 850 m² yang dilengkapi empat lift servis hidrolik berkekuatan 4 ton, peralatan laser wheel aligner digital Corghi, dan scanner diagnostik OEM level pabrikan.
               </p>
               <p className="text-sm text-[#777871] leading-relaxed">
                 Setiap mekanik yang menangani mobil Anda adalah teknisi tetap bersertifikasi yang wajib mematuhi lembar kerja inspeksi 48 poin dan kalibrasi torsi kunci sebelum kendaraan diserahterimakan.

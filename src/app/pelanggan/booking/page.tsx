@@ -208,7 +208,7 @@ export default function CustomerBookingPage() {
               Reservasi Jadwal Servis Workshop
             </h1>
             <p className="text-xs text-[#777871] mt-0.5">
-              Alur 8 langkah presisi untuk memastikan persiapan suku cadang dan teknisi di workbay MELTUNE AUTO.
+              Alur 8 langkah presisi untuk memastikan persiapan suku cadang dan teknisi di bengkel MELTUNE AUTO.
             </p>
           </div>
           {step < 8 && (
@@ -741,7 +741,7 @@ export default function CustomerBookingPage() {
               </div>
 
               <p className="text-xs text-[#777871] max-w-md mx-auto leading-relaxed">
-                Permintaan booking Anda telah diteruskan ke mekanik operasional workshop. Silakan pantau status persetujuan dan catatan persiapan workbay melalui halaman riwayat.
+                Permintaan booking Anda telah diteruskan ke mekanik operasional workshop. Silakan pantau status persetujuan dan catatan persiapan servis melalui halaman riwayat.
               </p>
 
               <div className="pt-4 flex flex-wrap items-center justify-center gap-3">

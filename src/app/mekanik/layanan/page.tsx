@@ -10,7 +10,7 @@ export default function MechanicServicesViewPage() {
   const [services, setServices] = useState<ServiceItem[]>([]);
 
   useEffect(() => {
-    api.services.getAll().then(setServices);
+    api.services.getAll().then(setServices).catch(() => {});
   }, []);
 
   return (

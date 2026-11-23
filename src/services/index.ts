@@ -12,7 +12,17 @@ import {
   CartItem,
 } from '@/types';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
+export function getApiBaseUrl(): string {
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    // When accessing via LAN IP or custom host, route backend requests accordingly
+    if (host && host !== 'localhost' && host !== '127.0.0.1') {
+      return `${window.location.protocol}//${host}:4000/api/v1`;
+    }
+  }
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
+}
+
 const CART_STORAGE_KEY = 'meltune_cart';
 
 // Client-side cart helper for store checkout
@@ -40,6 +50,14 @@ async function getAuthHeader(): Promise<Record<string, string>> {
   try {
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.access_token) {
+      // Proactively refresh if expiring within 90 seconds
+      const nowSec = Math.floor(Date.now() / 1000);
+      if (session.expires_at && session.expires_at - nowSec < 90) {
+        const { data: refreshed } = await supabase.auth.refreshSession();
+        if (refreshed?.session?.access_token) {
+          return { Authorization: `Bearer ${refreshed.session.access_token}` };
+        }
+      }
       return { Authorization: `Bearer ${session.access_token}` };
     }
   } catch {
@@ -50,25 +68,57 @@ async function getAuthHeader(): Promise<Record<string, string>> {
 
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const authHeader = await getAuthHeader();
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...authHeader,
-      ...options?.headers,
-    },
-  });
+  const apiBase = getApiBaseUrl();
 
-  if (res.status === 401) {
+  let res: Response;
+  try {
+    res = await fetch(`${apiBase}${endpoint}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...authHeader,
+        ...options?.headers,
+      },
+    });
+  } catch (netErr: any) {
+    console.warn(`[API] Network error fetching ${apiBase}${endpoint}:`, netErr?.message);
+    throw new Error(`Tidak dapat terhubung ke server backend Meltune (${netErr?.message || 'Network error'}). Pastikan backend aktif.`);
+  }
+
+  // Auto-refresh token on 401 and retry once
+  if (res.status === 401 && !(options?.headers as any)?.['X-Retry'] && supabase) {
+    try {
+      const { data: refreshed } = await supabase.auth.refreshSession();
+      if (refreshed?.session?.access_token) {
+        return request<T>(endpoint, {
+          ...options,
+          headers: {
+            ...options?.headers,
+            'X-Retry': '1',
+            Authorization: `Bearer ${refreshed.session.access_token}`,
+          },
+        });
+      }
+    } catch {
+      // Refresh failed
+    }
+
     if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/auth')) {
       window.location.href = '/auth/login?reason=session_expired';
     }
   }
 
-  const data = await res.json();
-  if (!res.ok) {
-    throw new Error(data.message || 'Permintaan API gagal');
+  let data: any = null;
+  try {
+    data = await res.json();
+  } catch {
+    throw new Error(`Server backend mengembalikan respon tidak valid (Status HTTP ${res.status}).`);
   }
+
+  if (!res.ok) {
+    throw new Error(data?.message || `Permintaan API gagal dengan status ${res.status}`);
+  }
+
   return data.data;
 }
 

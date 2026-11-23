@@ -10,7 +10,7 @@ export default function AdminSupportAuditPage() {
   const [threads, setThreads] = useState<SupportThread[]>([]);
 
   useEffect(() => {
-    api.support.getThreads().then(setThreads);
+    api.support.getThreads().then(setThreads).catch(() => {});
   }, []);
 
   return (

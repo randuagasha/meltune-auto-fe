@@ -15,7 +15,7 @@ export default function MechanicSupportPage() {
     api.support.getThreads().then(t => {
       setThreads(t);
       if (!activeThreadId && t.length > 0) setActiveThreadId(t[0].id);
-    });
+    }).catch(() => {});
   };
 
   useEffect(() => {

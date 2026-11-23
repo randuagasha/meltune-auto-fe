@@ -16,7 +16,7 @@ export default function AdminLoyaltyPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    api.loyalty.getRewards().then(setRewards);
+    api.loyalty.getRewards().then(setRewards).catch(() => {});
     api.admin.getSettings().then(data => {
       if (data) {
         if (data.dailyCheckInBasePoints !== undefined) setBasePoints(data.dailyCheckInBasePoints);

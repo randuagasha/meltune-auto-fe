@@ -24,7 +24,7 @@ export default function AdminServicesPage() {
   });
 
   const loadServices = () => {
-    api.services.getAll().then(setServices);
+    api.services.getAll().then(setServices).catch(() => {});
   };
 
   useEffect(() => {

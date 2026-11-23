@@ -21,7 +21,7 @@ export default function MechanicDashboardPage() {
   const [bays, setBays] = useState(initialBays);
 
   useEffect(() => {
-    api.bookings.getAll().then(setBookings);
+    api.bookings.getAll().then(setBookings).catch(() => {});
     api.dashboard.getMechanicDashboard().then(data => {
       if (data?.activeBayAllocations?.length > 0) {
         setBays(data.activeBayAllocations.map((b: any, i: number) => ({

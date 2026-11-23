@@ -25,6 +25,7 @@ export default function AdminOrdersPage() {
     setLoading(true);
     api.orders.getAll()
       .then(setOrders)
+      .catch(() => {})
       .finally(() => setLoading(false));
   };
 

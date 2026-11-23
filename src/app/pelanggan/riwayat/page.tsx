@@ -67,7 +67,7 @@ export default function CustomerBookingHistoryPage() {
               Riwayat & Status Reservasi
             </h1>
             <p className="text-xs text-[#777871] mt-0.5">
-              Pantau jadwal kedatangan kendaraan, catatan teknisi, dan tahapan servis workbay.
+              Pantau jadwal kedatangan kendaraan, catatan teknisi, dan tahapan pengerjaan servis.
             </p>
           </div>
           <Link

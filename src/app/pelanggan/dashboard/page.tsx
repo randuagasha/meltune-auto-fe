@@ -73,7 +73,7 @@ export default function CustomerDashboardPage() {
               Selamat Datang, {user?.fullName || 'Pelanggan'}
             </h1>
             <p className="text-xs text-[#777871] mt-1">
-              Ringkasan kondisi kendaraan, reservasi workbay, dan poin loyalty harian Anda.
+              Ringkasan kondisi kendaraan, reservasi servis, dan poin loyalty harian Anda.
             </p>
           </div>
           <motion.div whileHover={{ scale: 1.03, y: -1 }} whileTap={{ scale: 0.97 }}>
@@ -212,7 +212,7 @@ export default function CustomerDashboardPage() {
                 <div className="text-xs text-[#777871]">{activeBooking.scheduledTimeSlot}</div>
               </div>
               <div>
-                <span className="text-[11px] text-[#777871]">Status Workbay</span>
+                <span className="text-[11px] text-[#777871]">Status Servis</span>
                 <div className="text-sm font-bold capitalize text-emerald-700 flex items-center gap-1.5">
                   <CheckCircle2 size={14} />
                   <span>{activeBooking.status.replace('_', ' ')}</span>

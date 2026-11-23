@@ -44,7 +44,7 @@ export default function HomePage() {
               >
                 <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-3 py-1 bg-white border border-[#E4E1D9] rounded-full text-xs font-semibold text-[#D96B3A] shadow-2xs">
                   <span className="w-2 h-2 rounded-full bg-[#D96B3A] animate-ping" />
-                  <span>Bengkel Spesialis & Workbay Presisi</span>
+                  <span>Bengkel Spesialis Perawatan Presisi</span>
                 </motion.div>
 
                 <motion.h1
@@ -99,7 +99,7 @@ export default function HomePage() {
                 >
                   <div>
                     <div className="text-2xl font-bold text-[#242522] font-heading">4 Bay</div>
-                    <div className="text-xs text-[#777871] mt-0.5">Workbay Khusus</div>
+                    <div className="text-xs text-[#777871] mt-0.5">Lokasi Servis Khusus</div>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-[#242522] font-heading">100%</div>
@@ -327,7 +327,7 @@ export default function HomePage() {
                 Cara Reservasi Servis di MELTUNE AUTO
               </h2>
               <p className="text-sm text-[#777871] mt-2">
-                Tanpa antrean fisik tidak pasti. Booking waktu kedatangan dan verifikasi teknisi siap di workbay.
+                Tanpa antrean fisik tidak pasti. Booking waktu kedatangan dan verifikasi teknisi siap di bengkel.
               </p>
             </motion.div>
 
@@ -514,7 +514,7 @@ export default function HomePage() {
               Siap merasakan standar perawatan kendaraan yang sesungguhnya?
             </h2>
             <p className="text-base text-[#777871] max-w-xl mx-auto">
-              Jadwalkan servis Anda hari ini di workbay kami atau konsultasikan gejala kendala mobil Anda langsung dengan teknisi kepala MELTUNE AUTO.
+              Jadwalkan servis Anda hari ini di bengkel kami atau konsultasikan gejala kendala mobil Anda langsung dengan teknisi kepala MELTUNE AUTO.
             </p>
             <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
               <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.97 }}>
